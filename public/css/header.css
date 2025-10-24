@@ -1,0 +1,280 @@
+/* Reset de base */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  margin: 0;
+  background-color: #fff8e1;
+}
+
+main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Header Styles */
+header {
+  background: linear-gradient(135deg, #8b4513 0%, #654321 100%);
+  color: white;
+  padding: 1rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Footer Styles */
+footer {
+  background: linear-gradient(135deg, #8b4513 0%, #654321 100%);
+  color: white;
+  padding: 2rem 0;
+  margin-top: auto;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+}
+
+header .container {
+  margin: 0 auto;
+  padding: 0 20px;
+  display: flex;
+  gap: 2rem;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.menu-open {
+  margin: 0 auto;
+  padding: 0 20px;
+  display: flex;
+  gap: 2rem;
+  justify-content: space-between;
+  align-items: center;
+  flex-direction: column;
+}
+.close-menu {
+    display: block;
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 2.5rem;
+    cursor: pointer;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+  }
+
+  .close-menu:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: scale(1.1);
+  }
+/* Logo */
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #d4af37;
+}
+
+.logo i {
+  font-size: 2rem;
+  transition: transform 0.3s ease;
+}
+
+.logo:hover i {
+  transform: rotate(15deg);
+}
+
+/* Navigation */
+.main-nav ul {
+  display: flex;
+  gap: 2rem;
+  list-style: none;
+  flex-direction: column;
+}
+
+.main-nav a {
+  color: white;
+  text-decoration: none;
+  font-size: 1.1rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  padding: 8px 16px;
+  border-radius: 25px;
+  position: relative;
+}
+
+.main-nav a:hover {
+  color: #d4af37;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.main-nav a.active {
+  color: #d4af37;
+  background: rgba(212, 175, 55, 0.1);
+}
+
+/* Auth Buttons */
+.auth-buttons {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  flex-direction: column;
+}
+
+.btn {
+  padding: 0.75rem;
+  border-radius: 25px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-outline {
+  background: transparent;
+  border: 2px solid #d4af37;
+  color: #d4af37;
+}
+
+.btn-primary {
+  background: #d4af37;
+  color: #3e2723;
+}
+
+.btn-outline:hover {
+  background: #d4af37;
+  color: #3e2723;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+}
+
+.btn-primary:hover {
+  background: #e6c260;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+}
+
+/* Cart Icon */
+.cart-icon {
+  position: relative;
+  cursor: pointer;
+  color: white;
+  font-size: 1.5rem;
+  padding: 0.5rem;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  margin-left: 0.5rem;
+}
+
+.cart-icon:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: scale(1.1);
+}
+
+.cart-count {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: #d4af37;
+  color: #3e2723;
+  border-radius: 50%;
+  width: 1.2rem;
+  height: 1.2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 0.8rem;
+  font-weight: bold;
+  border: 2px solid #8b4513;
+}
+.menu {
+  display: none;
+  flex-direction: column;
+  gap: 1.5rem;
+  justify-content: center;
+  align-items: center;
+}
+.hambuger-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  transition: transform 0.4s cubic-bezier(0.22, 0.61, 0.36, 1);
+  transform-origin: center;
+}
+.hambuger-menu:hover {
+  cursor: pointer;
+  transform: rotate(90deg);
+}
+.hambuger {
+  width: 28px;
+  height: 3px;
+  background-color: #ffffff;
+  border-radius: 2px;
+  transition: background-color 0.3s ease;
+}
+/* Responsive Design */
+@media screen and (min-width: 48rem) {
+  header .container {
+    gap: 1.5rem;
+    padding: 1rem 20px;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    flex-direction: row;
+  }
+  .main-nav ul {
+    flex-direction: row;
+  }
+  .auth-buttons {
+    flex-direction: row;
+  }
+  .menu {
+    display: flex;
+    flex-direction: row;
+  }
+  .hambuger-menu {
+    display: none;
+  }
+  .close-menu{
+    display: none;
+  }
+}
+
+/* Animation pour le header */
+@keyframes slideDown {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+header {
+  animation: slideDown 0.5s ease-out;
+}
+
+/* Effet de transition pour les liens */
+.main-nav a {
+  position: relative;
+  overflow: hidden;
+}

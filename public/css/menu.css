@@ -1,0 +1,417 @@
+body {
+  font-family: "Ysabeau Infant", sans-serif;
+  font-optical-sizing: auto;
+  font-style: normal;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  min-height: 100vh;
+}
+
+.products-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  animation: fadeInUp 0.8s ease-out;
+}
+
+.title {
+  text-align: center;
+  margin-bottom: 2rem;
+  position: relative;
+}
+
+.title h1 {
+  font-size: 2.5rem;
+  color: #2c3e50;
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+  animation: slideInFromTop 0.8s ease-out 0.2s both;
+}
+
+.title h2 {
+  font-size: 1.2rem;
+  color: #7f8c8d;
+  font-weight: 400;
+  animation: slideInFromTop 0.8s ease-out 0.4s both;
+}
+
+.title::after {
+  content: "";
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, #d97706, transparent);
+  animation: expandLine 1s ease-out 0.6s forwards;
+}
+
+.product-container {
+  display: grid;
+  gap: 2rem;
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.product-card {
+  background-color: white;
+  border-radius: 1rem;
+  overflow: hidden;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  position: relative;
+  opacity: 0;
+  transform: translateY(30px);
+  animation: cardAppear 0.6s ease-out forwards;
+}
+
+.product-card:hover {
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  transform: translateY(-0.75rem) scale(1.02);
+}
+
+.image-cars {
+  position: relative;
+  overflow: hidden;
+}
+
+.product-image {
+  height: 20rem;
+  display: flex;
+  overflow: hidden;
+  position: relative;
+}
+.product-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: all 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  filter: brightness(0.95);
+}
+
+.product-card:hover .product-image img {
+  transform: scale(1.1) rotate(1deg);
+  filter: brightness(1.05);
+}
+
+.product-info {
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  gap: 0.5rem;
+}
+
+.product-name {
+    font-family: "Ysabeau Infant", sans-serif;
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: #374151;
+  margin-bottom: 0.25rem;
+  transition: all 0.4s ease;
+  position: relative;
+  display: inline-block;
+}
+
+.product-card:hover .product-name {
+  color: #d97706;
+  transform: translateX(5px);
+}
+
+.product-description {
+  padding-top: 0.25rem;
+  border-top: 2px solid rgb(205, 203, 203);
+  font-size: 1rem;
+  color: #4a5565;
+  line-height: 1.5;
+  flex-grow: 1;
+  transition: all 0.4s ease;
+}
+
+.product-card:hover .product-description {
+  border-top-color: #d97706;
+  transform: translateY(-2px);
+}
+
+.price {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: linear-gradient(135deg, #d97706, #f59e0b);
+  font-weight: bold;
+  font-size: 1.2rem;
+  padding: 0.5rem 1rem;
+  border-radius: 1.2rem;
+  color: white;
+  box-shadow: 0 8px 20px rgba(217, 119, 6, 0.3);
+  transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  z-index: 2;
+  animation: pricePulse 2s infinite;
+}
+
+.product-card:hover .price {
+  transform: scale(1.1) rotate(5deg);
+  box-shadow: 0 12px 25px rgba(217, 119, 6, 0.4);
+}
+
+.booking {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  align-items: center;
+  padding: 0.5rem 0;
+  transition: all 0.4s ease;
+}
+
+.product-card:hover .booking {
+  transform: translateY(-3px);
+}
+
+.quantity-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  background-color: white;
+  color: #d97706;
+  cursor: pointer;
+  font-weight: 500;
+  border-radius: 50%;
+  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  border: 2px solid #d97706;
+  font-size: 1.2rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.quantity-btn::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: #d97706;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  transform: translate(-50%, -50%);
+}
+
+.quantity-btn:hover::before {
+  width: 100%;
+  height: 100%;
+}
+
+.quantity-btn:hover {
+  color: white;
+  transform: scale(1.1);
+  border-color: transparent;
+}
+
+.quantity-btn i {
+  position: relative;
+  z-index: 1;
+  transition: transform 0.3s ease;
+}
+
+.quantity-btn:hover i {
+  transform: scale(1.2);
+}
+
+.quantity {
+  width: 4rem;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.2rem;
+  padding: 0.25rem 1rem;
+  border-radius: 0.5rem;
+  font-family: "Ysabeau Infant", sans-serif;
+  border: 2px solid #e5e7eb;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.quantity:focus {
+  outline: none;
+  border-color: #d97706;
+  box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.1);
+  transform: scale(1.05);
+}
+
+.valider {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-top: 0.5rem;
+  transition: all 0.4s ease;
+}
+
+.product-card:hover .valider {
+  transform: translateY(-2px);
+}
+
+.btn-valider {
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.75rem;
+  border: 2px solid #d97706;
+  background: linear-gradient(135deg, #d97706, #f59e0b);
+  color: white;
+  font-family: "Ysabeau Infant", sans-serif;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  box-shadow: 0 4px 15px rgba(217, 119, 6, 0.3);
+}
+
+.btn-valider::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+  transition: left 0.5s ease;
+}
+
+.btn-valider:hover::before {
+  left: 100%;
+}
+
+.btn-valider:hover {
+  background: white;
+  color: #d97706;
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 8px 25px rgba(217, 119, 6, 0.4);
+}
+
+/* Animations personnalisées */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInFromTop {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes expandLine {
+  from {
+    width: 0;
+  }
+  to {
+    width: 100px;
+  }
+}
+
+@keyframes cardAppear {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes pricePulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+@keyframes bounceIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+  70% {
+    transform: scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Animation pour le bouton ajouter au panier */
+@keyframes addToCart {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(0.9);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.btn-valider.adding {
+  animation: addToCart 0.4s ease;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .product-container {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .product-container {
+    grid-template-columns: 1fr;
+  }
+
+  .product-info {
+    padding: 1rem;
+  }
+
+  .product-name {
+    font-size: 1.5rem;
+  }
+
+  .product-description {
+    font-size: 0.9rem;
+  }
+}

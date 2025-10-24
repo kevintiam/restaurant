@@ -1,6 +1,4 @@
 import { Router } from "express";
-
-
 const router = Router();
 
 // Définition des routes

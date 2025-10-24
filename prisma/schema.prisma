@@ -1,0 +1,64 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model TypeUtilisateur {
+  id_type_utilisateur Int    @id @default(autoincrement())
+  nom                 String
+  utilisateurs Utilisateur[]
+}
+
+model EtatCommande {
+  id_etat_commande Int    @id @default(autoincrement())
+  nom              String
+  commandes Commande[]
+}
+
+model Produit {
+  id_produit   Int    @id @default(autoincrement())
+  nom          String
+  chemin_image String?
+  prix         Float
+  categorie    String?
+  description  String?
+  commandeProduits CommandeProduit[]
+}
+
+model Utilisateur {
+  id_utilisateur     Int               @id @default(autoincrement())
+  id_type_utilisateur Int
+  courriel           String            @unique
+  mot_de_passe       String?
+  prenom             String?
+  nom                String?
+  type_utilisateur TypeUtilisateur @relation(fields: [id_type_utilisateur], references: [id_type_utilisateur])
+  commandes        Commande[]
+}
+
+model Commande {
+  id_commande       Int       @id @default(autoincrement())
+  id_utilisateur    Int
+  id_etat_commande  Int
+  date              Int // Timestamp EPOCH en millisecondes
+  utilisateur    Utilisateur    @relation(fields: [id_utilisateur], references: [id_utilisateur])
+  etat_commande  EtatCommande   @relation(fields: [id_etat_commande], references: [id_etat_commande])
+  produits       CommandeProduit[]
+}
+
+model CommandeProduit {
+  id_commande Int
+  id_produit  Int
+  quantite    Int
+  commande Commande @relation(fields: [id_commande], references: [id_commande])
+  produit  Produit  @relation(fields: [id_produit], references: [id_produit])
+  @@id([id_commande, id_produit])
+}

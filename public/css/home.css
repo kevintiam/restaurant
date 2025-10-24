@@ -1,0 +1,136 @@
+/* Section d'accueil */
+.accueil {
+  position: relative;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.6)), 
+              url('/images/background.png') center/cover no-repeat;
+  color: white;
+  text-align: center;
+  overflow: hidden;
+}
+
+.acceuil-content {
+  max-width: 800px;
+  padding: 2rem;
+  animation: fadeInUp 1s ease-out;
+}
+
+.acceuil-title {
+  font-family: "Playfair Display", serif;
+  font-size: 3.5rem;
+  font-weight: 800;
+  line-height: 1.1;
+  margin-bottom: 1.25rem;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.highlight {
+  color: #fbbf24; /* orange doré — évoque les épices, le soleil */
+  position: relative;
+}
+
+.highlight::after {
+  content: "";
+  position: absolute;
+  bottom: 8px;
+  left: 0;
+  width: 100%;
+  height: 8px;
+  background: rgba(251, 191, 36, 0.3);
+  z-index: -1;
+  border-radius: 4px;
+}
+
+.acceuil-subtitle {
+  font-size: 1.4rem;
+  font-weight: 400;
+  margin-bottom: 2.5rem;
+  line-height: 1.6;
+  opacity: 0.95;
+}
+
+/* Boutons */
+.acceuil-buttons {
+  display: flex;
+  gap: 1.25rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.btnA {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.9rem 1.75rem;
+  border-radius: 50px;
+  font-weight: 600;
+  font-size: 1.1rem;
+  text-decoration: none;
+  transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.btnA-primary {
+  background: #fbbf24;
+  color: #1e293b;
+}
+
+.btnA-primary:hover {
+  background: #f59e0b;
+  transform: translateY(-4px) scale(1.03);
+  box-shadow: 0 8px 20px rgba(251, 191, 36, 0.4);
+}
+
+.btnA-secondary {
+  background: transparent;
+  color: white;
+  border: 2px solid white;
+}
+
+.btnA-secondary:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Animation */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .acceuil-title {
+    font-size: 2.5rem;
+  }
+
+  .acceuil-subtitle {
+    font-size: 1.15rem;
+  }
+
+  .btn {
+    padding: 0.8rem 1.5rem;
+    font-size: 1rem;
+  }
+
+  .acceuil-buttons {
+    flex-direction: column;
+    align-items: center;
+  }
+}
+.home{
+    display: flex;
+    flex-direction: column;
+    padding:0;
+    width: 100%;
+}

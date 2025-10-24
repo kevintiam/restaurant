@@ -6,10 +6,20 @@ const router = Router();
 
 // route pour la page d'accueil
 router.get("/", async (req, res) => {
+  res.render("home", {
+    title: "Todo",
+    styles: ["./css/header.css", "./css/menu.css", "./css/home.css","./css/about.css"],
+    scripts: ["./js/header.js", "./js/menu.js"],
+    products: await getAllProducts(),
+  });
+});
+
+//route pour voir les menus
+router.get("/menu", async (req, res) => {
   res.render("menu", {
     title: "Todo",
-    styles: ["./css/header.css", "./css/menu.css"],
-    scripts: ["./js/header.js"],
+    styles: ["./css/header.css", "./css/menu.css", "home.css"],
+    scripts: ["./js/header.js", "./js/menu.js"],
     products: await getAllProducts(),
   });
 });

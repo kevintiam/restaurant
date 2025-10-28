@@ -8,6 +8,8 @@ import {
   allCommande,
   updateCommande,
   getContenuPanier,
+  updatePanierQuantity,
+  getTotalItems,
 } from "./model/restaurant.js";
 const router = Router();
 
@@ -34,21 +36,27 @@ router.get("/", async (req, res) => {
       "./css/menu.css",
       "./css/home.css",
       "./css/about.css",
+      "./css/panier.css",
     ],
-    scripts: ["./js/header.js", "./js/menu.js"],
+    scripts: ["./js/header.js", "./js/menu.js", "./js/panier.js"],
     products: await getAllProducts(),
   });
 });
 
 //route pour voir les articles dans le panier
-router.get("/panier", (req, res) => {
+router.get("/panier", async (req, res) => {
   try {
-    const donneesPanier = getContenuPanier();
     res.render("panier", {
       title: "Panier",
-      styles: ["./css/header.css"],
-      scripts: ["./js/header.js"],
-      ...donneesPanier,
+      styles: [
+        "./css/header.css",
+        "./css/menu.css",
+        "./css/home.css",
+        "./css/about.css",
+        "./css/panier.css",
+      ],
+      scripts: ["./js/header.js", "./js/menu.js", "./js/panier.js"],
+      donneesPanier: await getContenuPanier(),
     });
   } catch (error) {
     res.status(500).send("Erreur lors du chargement du panier.");
@@ -72,6 +80,31 @@ router.post("/panier/ajouter", async (req, res) => {
   }
 });
 
+router.put("/panier/update/:id", async (req, res) => {
+  try {
+    const id = req.params.id;
+    const { quantite } = req.body;
+
+    if (quantite === undefined) {
+      return res.status(400).json({ message: "Quantité manquante." });
+    }
+
+    const resultat = await updatePanierQuantity(id, quantite);
+
+    res.status(200).json({
+      message: `Article ${resultat.action} avec succès.`,
+      data: resultat.item,
+    });
+  } catch (error) {
+    console.error(
+      "Erreur lors de la mise à jour de la quantité:",
+      error.message
+    );
+    res.status(400).json({
+      message: error.message,
+    });
+  }
+});
 // Route pour supprimer un article ou vider le panier (POST)
 router.delete("/panier/supprimer/:id", async (req, res) => {
   try {
@@ -91,6 +124,16 @@ router.delete("/panier/supprimer/:id", async (req, res) => {
     res.status(500).json({
       message: error.message || "Erreur lors de la suppression de l'article.",
     });
+  }
+});
+// route pour recuperer le nombre total d'element 
+router.get("/panier/total-items", async (req, res) => {
+  try {
+    const totalItems = await getTotalItems();
+    res.status(200).json({ totalItems: totalItems });
+  } catch (error) {
+    console.error("Erreur calcul total items:", error);
+    res.status(500).json({ message: "Erreur serveur" });
   }
 });
 

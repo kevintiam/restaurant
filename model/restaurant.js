@@ -9,18 +9,9 @@ const getAllProducts = async () => {
 };
 
 // Fonction pour récupérer le contenu du panier
-const getContenuPanier = () => {
+const getContenuPanier = async () => {
   const items = panierTemporaire;
-  const sousTotal = items.reduce(
-    (acc, item) => acc + item.quantite * item.prix,
-    0
-  );
-
-  return {
-    items: items,
-    sousTotal: sousTotal.toFixed(2),
-    estVide: items.length === 0,
-  };
+  return items;
 };
 
 // fonction pour ajouter les produits au panier
@@ -51,8 +42,11 @@ const addToPanier = async (produitID, quantiteProduit) => {
       quantite: quantite,
       nom: produit.nom,
       prix: produit.prix,
+      image: produit.chemin_image,
+      description: produit.description,
     };
     panierTemporaire.push(nouvelArticle);
+    console.log(panierTemporaire);
     return nouvelArticle;
   }
 };
@@ -183,6 +177,40 @@ const updateCommande = async (idCommande, newEtat) => {
   }
 };
 
+const updatePanierQuantity = async (produitID, nouvelleQuantite) => {
+  const id = parseInt(produitID);
+  const quantite = parseInt(nouvelleQuantite);
+
+  if (isNaN(id) || isNaN(quantite) || quantite < 0) {
+    throw new Error("ID produit ou quantité invalide.");
+  }
+  console.log("Contenu actuel de panierTemporaire:", panierTemporaire);
+  const panier = await getContenuPanier();
+
+  const itemIndex = panier.findIndex((p) => p.id_produit === id);
+
+  if (itemIndex === -1) {
+    throw new Error("Article introuvable dans le panier.");
+  }
+
+  if (quantite === 0) {
+    const [articleSupprime] = panierTemporaire.splice(itemIndex, 1);
+    return articleSupprime;
+  }
+
+  panierTemporaire[itemIndex].quantite = quantite;
+
+  return panierTemporaire[itemIndex];
+};
+
+const getTotalItems = () => {
+  const totalItems = panierTemporaire.reduce((sum, item) => {
+    return sum + item.quantite;
+  }, 0);
+
+  return totalItems;
+};
+
 export {
   getAllProducts,
   addToPanier,
@@ -192,4 +220,7 @@ export {
   allCommande,
   updateCommande,
   getContenuPanier,
+  panierTemporaire,
+  updatePanierQuantity,
+  getTotalItems,
 };

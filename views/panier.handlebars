@@ -1,0 +1,168 @@
+<div class="panier">
+  <div class="panier-container">
+    <div class="items-container">
+      <h2>TOUS LES ARTICLES</h2>
+
+      <div id="panier-items">
+        {{#each  donneesPanier}}
+          <div class="item" data-id-produit="{{this.id_produit}}" data-prix="{{this.prix}}">
+            <div class="item-image">
+              <img src="{{this.image}}" alt="{{this.nom}}" />
+            </div>
+            <div class="item-cont">
+              <span class="item-name">{{this.nom}}</span>
+              <span class="item-description">{{this.description}}</span>
+
+              <div class="item-detail">
+                <span class="items-price">{{this.prix}} $CAD</span>
+
+                <div class="item-quantity">
+                  <button class="btn-decrease item-btn">-</button>
+                  <span id="qt">{{this.quantite}}</span>
+                  <button class="btn-increase item-btn">+</button>
+                </div>
+
+                <button
+                  class="btn-supprimer"
+                  data-id="{{this.id_produit}}"
+                  aria-label="Supprimer"
+                >
+                  <i class="fa-solid fa-trash"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        {{/each}}
+      </div>
+    </div>
+    <div class="panier-resume">
+      <span class="card-title">Résumé de la Commande</span>
+      <div class="total-summary">
+        <div class="total-line">
+          <span>Sous-total</span>
+          <span id="sous-total">0.00 $CAD</span>
+        </div>
+        <div class="total-line">
+          <span>Frais de livraison</span>
+          <span id="transport">0.00 $CAD</span>
+        </div>
+        <div class="total-line">
+          <span>Taxes (TPS/TVQ)</span>
+          <span id="taxe">0.0 $CAD</span>
+        </div>
+        <div class="total-line final-total">
+          <span>Total</span>
+          <span id="total-price">0.0 $CAD</span>
+        </div>
+        <div class="form-section">
+          <div class="section-title">
+            <i class="fas fa-credit-card"></i>
+            <span>Méthode de paiement</span>
+          </div>
+
+          <div class="payment-methods">
+            <div class="payment-method selected" data-method="carte">
+              <div class="payment-icon">
+                <i class="far fa-credit-card"></i>
+              </div>
+              <div class="payment-name">Carte de crédit</div>
+            </div>
+
+            <div class="payment-method" data-method="paypal">
+              <div class="payment-icon">
+                <i class="fab fa-paypal"></i>
+              </div>
+              <div class="payment-name">PayPal</div>
+            </div>
+
+            <div class="payment-method" data-method="interac">
+              <div class="payment-icon">
+                <i class="fas fa-exchange-alt"></i>
+              </div>
+              <div class="payment-name">Interac</div>
+            </div>
+          </div>
+        </div>
+        <form action="/commande/soumettre" method="POST">
+          <div class="form-group">
+            <label for="adresse_livraison" class="form-label">Adresse de
+              livraison
+            </label>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="123 Rue Principale, Ville"
+              id="adresse_livraison"
+              name="adresse_livraison"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="numero_carte" class="form-label">
+              Numéro de carte
+            </label>
+            <input
+              type="text"
+              class="form-control"
+              id="numero_carte"
+              name="numero_carte"
+              placeholder="1234 5678 9012 3456"
+              maxlength="19"
+            />
+          </div>
+          <div class="carte-info">
+            <div class="form-group">
+              <label for="date_expiration" class="form-label">
+                Expiration
+              </label>
+              <input
+                type="text"
+                class="form-control"
+                id="date_expiration"
+                name="date_expiration"
+                placeholder="MM/AA"
+                maxlength="5"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="cvv" class="form-label">
+                CVV
+              </label>
+              <input
+                type="text"
+                class="form-control"
+                id="cvv"
+                name="cvv"
+                placeholder="123"
+                maxlength="3"
+              />
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="titulaire_carte" class="form-label required">Nom du
+              titulaire</label>
+            <input
+              type="text"
+              class="form-control"
+              id="titulaire_carte"
+              name="titulaire_carte"
+              placeholder="Comme indiqué sur la carte"
+              required
+            />
+          </div>
+          <div class="btn-container">
+            <button type="submit" class="btn-submit">
+              <i class="fas fa-lock"></i>
+              Confirmer la commande
+            </button>
+            <div class="secure-note">
+              <i class="fas fa-shield-alt"></i>
+              Paiement sécurisé
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

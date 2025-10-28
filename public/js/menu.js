@@ -1,11 +1,14 @@
-document.addEventListener("DOMContentLoaded", () => {
+import { addPanier, getTotalCartItemsAPI } from "./api.js";
+
+document.addEventListener("DOMContentLoaded", async () => {
+  await updateCartBadge();
   const productsContainer = document.querySelector(".product-container");
 
   if (!productsContainer) {
     return;
   }
 
-  productsContainer.addEventListener("click", (e) => {
+  productsContainer.addEventListener("click", async (e) => {
     const card = e.target.closest(".product-card");
 
     if (!card) return;
@@ -29,24 +32,30 @@ document.addEventListener("DOMContentLoaded", () => {
     // bouton ajouter
     if (e.target.closest(".btn-valider")) {
       const productId = card.dataset.productId;
-      const productName = card.querySelector(".product-name").textContent.trim();
+      const productName = card
+        .querySelector(".product-name")
+        .textContent.trim();
       const quantityElemt = parseInt(quantity.textContent);
-
-      updateCartCount();
-
-      showMessage( `✅ ${productName} (x${quantityElemt}) ajouté au panier !`,"success");
-
+      showMessage(
+        `✅ ${productName} (x${quantityElemt}) ajouté au panier !`,
+        "success"
+      );
       animateButton(e.target.closest(".btn-valider"));
+      const response = await addPanier(productId, quantityElemt);
+      await updateCartBadge();
     }
   });
 });
 
-const updateCartCount = () => {
-  const cartCount = document.getElementById("cartCount");
-  if (cartCount) {
-    let currentCount = parseInt(cartCount.textContent) || 0;
-    currentCount++;
-    cartCount.textContent = currentCount;
+const updateCartBadge = async () => {
+  const cartCountElement = document.getElementById("cartCount");
+  if (cartCountElement) {
+    try {
+      const totalItems = await getTotalCartItemsAPI();
+      cartCountElement.textContent = totalItems;
+    } catch (error) {
+      console.error("Impossible de mettre à jour le badge du panier:", error);
+    }
   }
 };
 
@@ -87,4 +96,6 @@ const animateButton = (button) => {
     button.innerHTML = originalText;
     button.style.background = "";
   }, 2000);
-}
+};
+
+export { animateButton, showMessage, updateCartBadge };

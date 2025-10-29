@@ -70,25 +70,45 @@ const removeToPanier = async (produitID) => {
 // fonction pour vider le panier
 const viderPanier = async () => {
   if (panierTemporaire.length === 0) {
-    throw new Error("Le panier est déjà vide.");
+    return "Le panier est déjà vide.";
   }
   panierTemporaire.length = 0;
-  return { success: true, message: "Panier vidé avec succès." };
+  return "Panier vidé avec succès.";
 };
 
 // fonction pour passer la commande (creer la commande)
-const passerCommande = async (adresseLivraison) => {
+const passerCommande = async (
+  adresse_livraison,
+  nom_complet,
+  telephone,
+  courriel
+) => {
+  if (!adresse_livraison || !nom_complet || !telephone) {
+    throw new Error(
+      "Les informations de contact (Nom, Tél, Adresse) sont incomplètes."
+    );
+  }
   if (panierTemporaire.length === 0) {
     throw new Error("Impossible de soumettre : le panier est vide.");
   }
+  
+  const adresseComplete = [
+    `CLIENT: ${nom_complet}`,
+    `TÉL: ${telephone}`,
+    courriel ? `COURRIEL: ${courriel}` : "",
+    `ADRESSE: ${adresse_livraison}`,
+  ]
+    .filter(Boolean)
+    .join(" | ");
+
   try {
     const nouvelleCommande = await prisma.$transaction(async (tx) => {
       const commande = await tx.commande.create({
         data: {
           id_utilisateur: 1,
           id_etat_commande: 1,
-          date: Date.now(),
-          adresse_livraison: adresseLivraison,
+          date: new Date(),
+          adresse_livraison: adresseComplete,
         },
       });
 
@@ -104,9 +124,10 @@ const passerCommande = async (adresseLivraison) => {
 
       return commande;
     });
+    
     panierTemporaire.length = 0;
-
     return nouvelleCommande;
+    
   } catch (error) {
     console.error("Erreur Prisma lors de la transaction de commande :", error);
     throw new Error("Échec de la création de la commande.");
@@ -131,9 +152,8 @@ const allCommande = async () => {
       },
     });
 
-    // Formater les données (calcul du total, formatage de la date)
     return commandes.map((commande) => {
-      const total = commande.commandeProduits.reduce((sum, item) => {
+      const total = commande.CommandeProduit.reduce((sum, item) => {
         return sum + item.quantite * item.produit.prix;
       }, 0);
 
@@ -211,6 +231,24 @@ const getTotalItems = () => {
   return totalItems;
 };
 
+const calculateOrderTotals = async (itemsPourRecu, TAXE, TRANSPORT_RATE) => {
+  const sousTotal = itemsPourRecu.reduce((somme, item) => {
+    const itemPrice = item.quantite * item.prix;
+    return somme + itemPrice;
+  }, 0);
+
+  const transport = sousTotal * TRANSPORT_RATE;
+  const taxe = sousTotal * TAXE;
+  const totalFinal = sousTotal + taxe + transport;
+
+  return {
+    sousTotal: sousTotal.toFixed(2),
+    taxe: taxe.toFixed(2),
+    transport: transport.toFixed(2),
+    totalFinal: totalFinal.toFixed(2),
+  };
+};
+
 export {
   getAllProducts,
   addToPanier,
@@ -223,4 +261,5 @@ export {
   panierTemporaire,
   updatePanierQuantity,
   getTotalItems,
+  calculateOrderTotals,
 };

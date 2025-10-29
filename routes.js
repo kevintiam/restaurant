@@ -10,7 +10,11 @@ import {
   getContenuPanier,
   updatePanierQuantity,
   getTotalItems,
+  calculateOrderTotals,
 } from "./model/restaurant.js";
+import { PrismaClient } from "@prisma/client";
+const prisma = new PrismaClient();
+
 const router = Router();
 
 // Définition des routes
@@ -38,7 +42,12 @@ router.get("/", async (req, res) => {
       "./css/about.css",
       "./css/panier.css",
     ],
-    scripts: ["./js/header.js", "./js/menu.js", "./js/panier.js"],
+    scripts: [
+      "./js/header.js",
+      "./js/menu.js",
+      "./js/panier.js",
+      "./js/recus.js",
+    ],
     products: await getAllProducts(),
   });
 });
@@ -54,9 +63,16 @@ router.get("/panier", async (req, res) => {
         "./css/home.css",
         "./css/about.css",
         "./css/panier.css",
+        "./css/recu.css",
       ],
-      scripts: ["./js/header.js", "./js/menu.js", "./js/panier.js"],
+      scripts: [
+        "./js/header.js",
+        "./js/menu.js",
+        "./js/panier.js",
+        "./js/recus.js",
+      ],
       donneesPanier: await getContenuPanier(),
+      
     });
   } catch (error) {
     res.status(500).send("Erreur lors du chargement du panier.");
@@ -126,7 +142,7 @@ router.delete("/panier/supprimer/:id", async (req, res) => {
     });
   }
 });
-// route pour recuperer le nombre total d'element 
+// route pour recuperer le nombre total d'element
 router.get("/panier/total-items", async (req, res) => {
   try {
     const totalItems = await getTotalItems();
@@ -140,9 +156,9 @@ router.get("/panier/total-items", async (req, res) => {
 // route pour vider le panier
 router.delete("/panier/vider", async (req, res) => {
   try {
-    viderPanier();
+    const message = await viderPanier();
     res.status(200).json({
-      message: "Panier vider avec succes",
+      message: message,
     });
   } catch (error) {
     console.error("Erreur lors du vidage du panier:", error.message);
@@ -154,12 +170,51 @@ router.delete("/panier/vider", async (req, res) => {
 
 // Route pour soumettre la commande (POST)
 router.post("/commande/soumettre", async (req, res) => {
-  const { adresse_livraison } = req.body;
   try {
-    const commande = await passerCommande(adresse_livraison);
+    const { adresse_livraison, nom_complet, telephone, courriel } = req.body;
+
+    if (!adresse_livraison || !nom_complet || !telephone) {
+      return res.status(400).json({
+        message: "Adresse, nom complet et téléphone sont requis.",
+      });
+    }
+
+    const panier = await getContenuPanier();
+    if (panier.length === 0) {
+      return res.status(400).json({
+        message: "Le panier est vide. Impossible de soumettre la commande.",
+      });
+    }
+
+    const TAXE_RATE = 0.2;
+    const SHIPPING_COST = 0.1;
+    const itemsPourRecu = await calculateOrderTotals(
+      panier,
+      TAXE_RATE,
+      SHIPPING_COST
+    );
+
+    const commandeDB = await passerCommande(
+      adresse_livraison,
+      nom_complet,
+      telephone,
+      courriel
+    );
+
     res.status(201).json({
-      message: "Commande passer avec succes",
-      data: commande,
+      message: "Commande passée avec succès",
+      order: {
+        id: commandeDB.id_commande,
+        date: new Date(commandeDB.date).toLocaleString("fr-CA"),
+        nomClient: nom_complet,
+        telephoneClient: telephone,
+        adresse: adresse_livraison,
+        items: panier,
+        sousTotal: itemsPourRecu.sousTotal,
+        taxes: itemsPourRecu.taxe,
+        transport: itemsPourRecu.transport,
+        total: itemsPourRecu.totalFinal,
+      },
     });
   } catch (error) {
     console.error(
@@ -167,7 +222,7 @@ router.post("/commande/soumettre", async (req, res) => {
       error.message
     );
     res.status(500).json({
-      message: error,
+      message: error.message,
     });
   }
 });
@@ -191,12 +246,13 @@ router.get("/commandes", async (req, res) => {
 // Route pour modifier le statut d'une commande (POST)
 router.put("/commandes/statut/:id_commande", async (req, res) => {
   try {
-    const id_commande = req.params.id;
+    const id_commande = parseInt(req.params.id_commande);
     const { id_etat_commande } = req.body;
 
     if (isNaN(id_commande) || id_commande <= 0) {
       return res.status(400).json({ message: "ID de commande invalide." });
     }
+
     const commande = await updateCommande(id_commande, id_etat_commande);
     res.status(200).json({
       message: "Commande mise à jour",

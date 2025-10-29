@@ -1,4 +1,4 @@
-import { removeToPanier, updatePanierQuantity } from "./api.js";
+import { removeToPanier, updatePanierQuantity, viderPanier } from "./api.js";
 import { animateButton, showMessage, updateCartBadge } from "./menu.js";
 
 const panierContain = document.getElementById("panier-items");
@@ -35,9 +35,7 @@ const updateSummary = async () => {
   totalPrice.textContent = `${total.toFixed(2)} $CAD`;
   sousTotal.textContent = `${subtotal.toFixed(2)} $CAD`;
 };
-
 // gerer l'augmentation de la quantite
-
 const updateQuantity = async (e) => {
   await updateCartBadge();
   const itemElement = e.target.closest(".item");
@@ -76,9 +74,31 @@ const updateQuantity = async (e) => {
   }
 };
 
+// fonction pour vider le panier
+const viderPanierTotal = async () => {
+  const vider = document.getElementById("btn-vider-panier");
+  if (vider) {
+    vider.addEventListener("click", async () => {
+      const resultat = await viderPanier();
+
+      if (resultat) {
+        if (panierContain) {
+          panierContain.innerHTML = "";
+        }
+        updateSummary();
+        await updateCartBadge();
+        showMessage(resultat.message, "success");
+      } else {
+        showMessage(resultat.message);
+      }
+    });
+  }
+};
+
 document.addEventListener("DOMContentLoaded", async () => {
   await updateCartBadge();
   if (panierContain) {
+    await viderPanierTotal();
     panierContain.addEventListener("click", updateQuantity);
     updateSummary();
   }

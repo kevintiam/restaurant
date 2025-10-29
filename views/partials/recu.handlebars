@@ -1,0 +1,66 @@
+<div id="order-receipt-container" class="receipt-overlay">
+  <div class="order-receipt">
+    <div class="receipt-header">
+      <i class="fas fa-check-circle success-icon"></i>
+      <h4>Commande Confirmée !</h4>
+      <p>Merci pour votre commande,
+        <strong>{{recu.order.nomClient}}</strong>
+        !</p>
+      <p class="order-number">Numéro de commande :
+        <strong>#{{recu.order.id}}</strong></p>
+      <p>Date : <strong>{{recu.order.date}}</strong></p>
+    </div>
+
+    <div class="receipt-section">
+      <h5>Articles Commandés</h5>
+      <ul class="receipt-items-list">
+        {{#each donneesPanier}}
+          <li>
+            <span>{{this.quantite}} x {{this.nom}}</span>
+            <span>{{calculateLineTotal this.quantite this.prix}} $CAD</span>
+          </li>
+        {{/each}}
+      </ul>
+    </div>
+
+    <div class="receipt-section">
+      <h5>Résumé du Paiement</h5>
+      <div class="receipt-total-line">
+        <span>Sous-total :</span>
+        <span>{{recu.order.sousTotal}} $CAD</span>
+      </div>
+      <div class="receipt-total-line">
+        <span>Livraison :</span>
+        <span>{{recu.order.transport}} $CAD</span>
+      </div>
+      <div class="receipt-total-line">
+        <span>Taxes ({{TAX_RATE}}) :</span>
+        <span>{{recu.order.taxes}} $CAD</span>
+      </div>
+      <div class="receipt-total-line final">
+        <span>Total Payé :</span>
+        <span>{{recu.order.total}} $CAD</span>
+      </div>
+      <p class="payment-method-note">Méthode: {{order.modePaiement}}</p>
+    </div>
+
+    <div class="receipt-section">
+      <h5>Livraison à</h5>
+      <div class="address-info">
+        <p><strong>{{recu.order.nomClient}}</strong></p>
+        <p>{{recu.order.adresse}}</p>
+        {{#if recu.order.adresseComplement}}
+          <p>Appt/Suite: {{recu.order.adresse}}</p>
+        {{/if}}
+        <p>Téléphone: {{order.telephoneClient}}</p>
+        <p>Courriel: {{recu.order.adresse.courriel}}</p>
+      </div>
+    </div>
+
+    <div class="receipt-footer">
+      <p>Un courriel de confirmation sera envoyé à
+        <strong>{{order.emailClient}}</strong>.</p>
+      <a href="/" class="btn-back-home">Retour à l'accueil</a>
+    </div>
+  </div>
+</div>

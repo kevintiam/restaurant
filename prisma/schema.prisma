@@ -49,7 +49,7 @@ model Commande {
   id_commande       Int               @id @default(autoincrement())
   id_utilisateur    Int
   id_etat_commande  Int
-  date              Int // Timestamp EPOCH en millisecondes
+  date              DateTime
   adresse_livraison String
   utilisateur       Utilisateur       @relation(fields: [id_utilisateur], references: [id_utilisateur])
   etat_commande     EtatCommande      @relation(fields: [id_etat_commande], references: [id_etat_commande])

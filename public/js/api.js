@@ -77,9 +77,57 @@ const getTotalCartItemsAPI = async () => {
     throw error;
   }
 };
+
+const viderPanier = async () => {
+  try {
+    const response = await fetch("/panier/vider", {
+      method: "DELETE",
+    });
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || `Erreur HTTP: ${response.status}`);
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Erreur lors de la suppression de l'article:", error.message);
+    throw error;
+  }
+};
+
+const validerCommande = async (adresseLivraison, nomComplet, telephone, courriel) => {
+  const data = {
+    adresse_livraison: adresseLivraison, 
+    nom_complet: nomComplet, 
+    telephone: telephone, 
+    courriel: courriel 
+  };
+  
+  try {
+    const response = await fetch("/commande/soumettre", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+    const commande = await response.json();
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || `Erreur HTTP: ${response.status}`);
+    }
+    return commande;
+  } catch (error) {
+    console.error("Erreur API (validerCommande):", error.message);
+    throw error;
+  }
+};
+
 export {
   addPanier,
   removeToPanier,
   updatePanierQuantity,
   getTotalCartItemsAPI,
+  viderPanier,
+  validerCommande,
 };

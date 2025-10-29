@@ -23,6 +23,7 @@ app.use(helmet(cspOptions));
 app.use(compression());
 app.use(cors());
 app.use(json());
+app.use(express.urlencoded({ extended: true }));
 
 // Définition du dossier des fichiers statiques
 app.use(express.static("public"));

@@ -47,6 +47,7 @@ header .container {
   padding: 0 20px;
   display: flex;
   gap: 2rem;
+  width: 100%;
   justify-content: space-between;
   align-items: center;
 }
@@ -234,7 +235,7 @@ header .container {
   transition: background-color 0.3s ease;
 }
 /* Responsive Design */
-@media screen and (min-width: 48rem) {
+@media screen and (min-width: 74rem) {
   header .container {
     gap: 1.5rem;
     padding: 1rem 20px;

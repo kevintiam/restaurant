@@ -1,11 +1,23 @@
 <div class="panier">
-  <div class="panier-container">
+  <div class="panier-container" id="panier-container">
     <div class="items-container">
-      <h2>TOUS LES ARTICLES</h2>
+      <div class="panier-title">
+        <h2>TOUS LES ARTICLES</h2>
+        <div class="clear-cart-container">
+          <button id="btn-vider-panier" class="btn-clear-cart">
+            <i class="fa-solid fa-trash-can"></i>
+            Vider le panier
+          </button>
+        </div>
+      </div>
 
       <div id="panier-items">
-        {{#each  donneesPanier}}
-          <div class="item" data-id-produit="{{this.id_produit}}" data-prix="{{this.prix}}">
+        {{#each donneesPanier}}
+          <div
+            class="item"
+            data-id-produit="{{this.id_produit}}"
+            data-prix="{{this.prix}}"
+          >
             <div class="item-image">
               <img src="{{this.image}}" alt="{{this.nom}}" />
             </div>
@@ -83,10 +95,10 @@
             </div>
           </div>
         </div>
-        <form action="/commande/soumettre" method="POST">
+        <form id="commande-form">
           <div class="form-group">
-            <label for="adresse_livraison" class="form-label">Adresse de
-              livraison
+            <label for="adresse_livraison" class="form-label">
+              Adresse de livraison *
             </label>
             <input
               type="text"
@@ -97,9 +109,10 @@
               required
             />
           </div>
+
           <div class="form-group">
             <label for="numero_carte" class="form-label">
-              Numéro de carte
+              Numéro de carte *
             </label>
             <input
               type="text"
@@ -108,12 +121,14 @@
               name="numero_carte"
               placeholder="1234 5678 9012 3456"
               maxlength="19"
+              required
             />
           </div>
+
           <div class="carte-info">
             <div class="form-group">
               <label for="date_expiration" class="form-label">
-                Expiration
+                Expiration *
               </label>
               <input
                 type="text"
@@ -122,12 +137,13 @@
                 name="date_expiration"
                 placeholder="MM/AA"
                 maxlength="5"
+                required
               />
             </div>
 
             <div class="form-group">
               <label for="cvv" class="form-label">
-                CVV
+                CVV *
               </label>
               <input
                 type="text"
@@ -136,12 +152,15 @@
                 name="cvv"
                 placeholder="123"
                 maxlength="3"
+                required
               />
             </div>
           </div>
+
           <div class="form-group">
-            <label for="titulaire_carte" class="form-label required">Nom du
-              titulaire</label>
+            <label for="titulaire_carte" class="form-label">
+              Nom du titulaire *
+            </label>
             <input
               type="text"
               class="form-control"
@@ -151,6 +170,21 @@
               required
             />
           </div>
+
+          <div class="form-group">
+            <label for="numero_telephone" class="form-label">
+              Numéro de Téléphone *
+            </label>
+            <input
+              type="tel"
+              class="form-control"
+              placeholder="514 123 4567"
+              id="numero_telephone"
+              name="numero_telephone"
+              required
+            />
+          </div>
+
           <div class="btn-container">
             <button type="submit" class="btn-submit">
               <i class="fas fa-lock"></i>
@@ -160,9 +194,10 @@
               <i class="fas fa-shield-alt"></i>
               Paiement sécurisé
             </div>
-          </div>
+          </div>         
         </form>
       </div>
     </div>
   </div>
+{{>recu}}
 </div>

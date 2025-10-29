@@ -2,7 +2,7 @@
 import { PrismaClient } from "@prisma/client";
 
 async function main() {
-  console.log("🍛 Insertion des plats africains...");
+  console.log("🍛 Début de l'insertion des données de base...");
 
   let prisma;
 
@@ -14,6 +14,89 @@ async function main() {
     await prisma.$connect();
     console.log("✅ Connecté à la base de données");
 
+    // =======================================================
+    // I. INSERTION DES DONNÉES DE RÉFÉRENCE
+    // =======================================================
+
+    // 1. Suppression des anciens enregistrements pour repartir à zéro
+    console.log(
+      "\n🗑️ Suppression des données existantes (Utilisateurs, États, Produits)..."
+    );
+    await prisma.commandeProduit.deleteMany({}); // Nettoyer les commandes et produits liés d'abord
+    await prisma.commande.deleteMany({});
+    await prisma.utilisateur.deleteMany({});
+    await prisma.etatCommande.deleteMany({});
+    await prisma.produit.deleteMany({});
+    console.log("✅ Nettoyage terminé.");
+
+    // Réinitialisation de l'auto-incrémentation pour s'assurer que le premier ID sera 1
+    if (process.env.DATABASE_URL.includes("sqlite")) {
+      try {
+        await prisma.$executeRaw`DELETE FROM sqlite_sequence WHERE name='EtatCommande';`;
+        await prisma.$executeRaw`DELETE FROM sqlite_sequence WHERE name='Utilisateur';`;
+      } catch (e) {}
+    }
+
+    // 1. Insertion des Types d'Utilisateur
+    console.log("\n👥 Insertion des Types d'Utilisateur...");
+    await prisma.typeUtilisateur.deleteMany({});
+    // Réinitialisation de l'auto-incrémentation pour s'assurer que 'Client' est ID 1
+    if (process.env.DATABASE_URL.includes("sqlite")) {
+      try {
+        await prisma.$executeRaw`DELETE FROM sqlite_sequence WHERE name='TypeUtilisateur';`;
+      } catch (e) {
+        /* Ignore */
+      }
+    }
+
+    const types = [
+      { nom: "Client" },
+      { nom: "Administrateur" },
+      { nom: "Livreur" },
+    ];
+    await prisma.typeUtilisateur.createMany({ data: types });
+    console.log("✅ Types d'utilisateur créés. 'Client' est ID 1.");
+
+    // 2. Insertion des États de Commande
+    console.log("\n⚙️ Insertion des États de Commande...");
+    const etatsDeCommande = [
+      { nom: "Nouvelle" }, // Obtient l'ID 1 (utilisé dans passerCommande)
+      { nom: "En préparation" },
+      { nom: "En livraison" },
+      { nom: "Livrée" },
+      { nom: "Annulée" },
+    ];
+    await prisma.etatCommande.createMany({ data: etatsDeCommande });
+    console.log("✅ 5 États de Commande créés (ID 1 à 5).");
+
+    // 3. Insertion de l'Utilisateur de Test
+    console.log("\n👤 Insertion de l'Utilisateur de Test (ID 1)...");
+
+    // IMPORTANT : Vous DEVEZ remplir tous les champs NON-OPTIONNELS de votre modèle 'utilisateur' ici.
+    const utilisateurTest = await prisma.utilisateur.create({
+      data: {
+        nom: "SOP TIAM",
+        prenom: "KEVIN ROSTAND",
+        courriel: "exemple@gmail.com",
+        mot_de_passe: "azerty",
+        
+        // Relation corrigée:
+        type_utilisateur: {
+          connect: {
+            id_type_utilisateur: 1, // Connecte au Type 'Client' (qui est l'ID 1)
+          },
+        },
+      },
+    });
+    console.log(
+      `✅ Utilisateur de test créé (ID: ${utilisateurTest.id_utilisateur}).`
+    );
+
+    // =======================================================
+    // II. INSERTION DES PLATS (Produits)
+    // =======================================================
+
+    console.log("\n🍛 Insertion des plats africains...");
     const plats = [
       {
         nom: "Alloco",
@@ -117,7 +200,7 @@ async function main() {
         categorie: "plat",
         description:
           "Sauce visqueuse de gombo frais, oignons et piments — accompagnement nutritif et savoureux.",
-        chemin_image: "/images/aitekier.webp",
+        chemin_image: "/images/atiekier.png",
       },
       {
         nom: "Met de Pistache",
@@ -141,7 +224,7 @@ async function main() {
         categorie: "plat",
         description:
           "Feuilles de vigne Gnetum africanum finement hachées, mijotées à la camerounaise.",
-        chemin_image: "/images/Iokoo.png",
+        chemin_image: "/images/okok.png",
       },
     ];
 

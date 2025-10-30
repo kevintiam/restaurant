@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
   const hambuger = document.getElementById("hambuger-menu");
-  const menu = document.getElementById("menu");
+  const menu = document.getElementById("menu-nav");
   const container = document.getElementById("container");
   const close = document.getElementById("close-menu");
   const menuLinks = menu.querySelectorAll("a");

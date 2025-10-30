@@ -12,6 +12,7 @@ import {
   getTotalItems,
   calculateOrderTotals,
 } from "./model/restaurant.js";
+import { validerInfosClient } from "./middlewares/validation.js";
 import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
@@ -29,7 +30,6 @@ router.get("/all-products", async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
-
 // route pour la page d'accueil
 router.get("/", async (req, res) => {
   res.render("home", {
@@ -50,7 +50,6 @@ router.get("/", async (req, res) => {
     products: await getAllProducts(),
   });
 });
-
 //route pour voir les articles dans le panier
 router.get("/panier", async (req, res) => {
   try {
@@ -76,7 +75,6 @@ router.get("/panier", async (req, res) => {
     res.status(500).send("Erreur lors du chargement du panier.");
   }
 });
-
 // route pour ajouter un article au panier
 router.post("/panier/ajouter", async (req, res) => {
   try {
@@ -93,7 +91,6 @@ router.post("/panier/ajouter", async (req, res) => {
     });
   }
 });
-
 router.put("/panier/update/:id", async (req, res) => {
   try {
     const id = req.params.id;
@@ -150,7 +147,6 @@ router.get("/panier/total-items", async (req, res) => {
     res.status(500).json({ message: "Erreur serveur" });
   }
 });
-
 // route pour vider le panier
 router.delete("/panier/vider", async (req, res) => {
   try {
@@ -165,9 +161,8 @@ router.delete("/panier/vider", async (req, res) => {
     });
   }
 });
-
 // Route pour soumettre la commande (POST)
-router.post("/commande/soumettre", async (req, res) => {
+router.post("/commande/soumettre", validerInfosClient, async (req, res) => {
   try {
     const { adresse_livraison, nom_complet, telephone, courriel } = req.body;
 
@@ -225,7 +220,6 @@ router.post("/commande/soumettre", async (req, res) => {
     });
   }
 });
-
 // route pour les commandes
 router.get("/commandes", async (req, res) => {
   try {
@@ -241,7 +235,6 @@ router.get("/commandes", async (req, res) => {
     res.status(500).send("Erreur lors du chargement des commandes.");
   }
 });
-
 // Route pour modifier le statut d'une commande (POST)
 router.put("/commandes/statut/:id_commande", async (req, res) => {
   try {

@@ -32,6 +32,7 @@ section {
   scroll-margin-top: 100px; /* Ajustez selon la hauteur de votre header */
 }
 
+
 main {
   flex: 1;
   display: flex;
@@ -45,7 +46,7 @@ header {
   color: white;
   padding: 0 1rem;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  position: fixed;
+    position: fixed;
   top: 0;
   left: 0; 
   width: 100%; 

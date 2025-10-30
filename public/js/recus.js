@@ -1,4 +1,5 @@
 import { validerCommande } from "./api.js";
+import { isEmailValid, isNomValid, isTelephoneValid } from "./validation.js";
 
 const orderForm = document.querySelector(".panier-resume form");
 const panierContainer = document.getElementById("panier-container");
@@ -7,45 +8,37 @@ const recu = document.getElementById("order-receipt");
 const submitForm = async (e) => {
   e.preventDefault();
 
-  const adresse = document.getElementById("adresse_livraison");
-  const nomComplet = document.getElementById("titulaire_carte");
-  const telephone = document.getElementById("numero_telephone");
+  const adresse = document.getElementById("adresse_livraison").value;
+  const nomComplet = document.getElementById("titulaire_carte").value;
+  const telephone = document.getElementById("numero_telephone").value;
   const courriel = "exemple@gmail.com";
   const submitButton = orderForm.querySelector(".btn-submit");
   const originalButtonHtml = submitButton.innerHTML;
 
   if (
-    !adresse.value.trim() ||
-    !nomComplet.value.trim() ||
-    !telephone.value.trim()
+    !isNomValid(adresse) ||
+    !isNomValid(nomComplet) ||
+    !isTelephoneValid(telephone)
   ) {
     alert("Veuillez remplir tous les champs obligatoires.");
     return;
   }
-
+  if (!isEmailValid(courriel)) {
+    alert("Entrer une email valid");
+    return;
+  }
   // Animation de chargement
   submitButton.disabled = true;
   submitButton.innerHTML =
     '<i class="fas fa-spinner fa-spin"></i> Traitement...';
 
-  console.log("Données de commande:", {
-    adresse: adresse.value,
-    nomComplet: nomComplet.value,
-    telephone: telephone.value,
-    courriel: courriel,
-  });
-
   try {
     const resultat = await validerCommande(
-      adresse.value.trim(),
-      nomComplet.value.trim(),
-      telephone.value.trim(),
+      adresse,
+      nomComplet,
+      telephone,
       courriel
     );
-
-    console.log("Résultat complet:", resultat);
-    console.log("ID de commande:", resultat.order?.id);
-    console.log("Items de commande:", resultat.order?.items);
 
     // Afficher le reçu AVANT de masquer le panier
     if (resultat.order) {
@@ -55,7 +48,6 @@ const submitForm = async (e) => {
     // Masquer le panier et afficher le reçu
     panierContainer.style.display = "none";
     recu.style.display = "block";
-
   } catch (error) {
     console.error("Erreur de soumission:", error.message);
     alert(`Erreur lors de la commande: ${error.message}`);
@@ -79,17 +71,22 @@ const afficherRecu = (order) => {
     return;
   }
   if (!order.items || !Array.isArray(order.items) || order.items.length === 0) {
-  console.warn("Aucun article à afficher – vérifie la réponse de l’API.");
-}
+    console.warn("Aucun article à afficher – vérifie la réponse de l’API.");
+  }
 
-  const listeProdruits = order.items && Array.isArray(order.items)
-    ? order.items.map((produit) => `
+  const listeProdruits =
+    order.items && Array.isArray(order.items)
+      ? order.items
+          .map(
+            (produit) => `
         <li data-id="${produit.id_produit}">
           <span>${produit.quantite} x ${produit.nom}</span>
           <span>${(produit.prix * produit.quantite).toFixed(2)} $CAD</span>
         </li>
-      `).join("")
-    : '<li>Aucun produit</li>';
+      `
+          )
+          .join("")
+      : "<li>Aucun produit</li>";
 
   const dateRecu = new Date().toLocaleDateString("fr-CA", {
     year: "numeric",
@@ -100,7 +97,6 @@ const afficherRecu = (order) => {
     hour: "2-digit",
     minute: "2-digit",
   });
-
 
   recu.innerHTML = `
     <div class="order-receipt">
@@ -151,7 +147,9 @@ const afficherRecu = (order) => {
       </div>
 
       <div class="receipt-footer">
-        <p>Un courriel de confirmation sera envoyé à ${order.adresse.courriel}.</p>
+        <p>Un courriel de confirmation sera envoyé à ${
+          order.adresse.courriel
+        }.</p>
         <a href="/" class="btn-back-home">Retour à l'accueil</a>
       </div>
     </div>

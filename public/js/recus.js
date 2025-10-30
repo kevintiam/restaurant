@@ -1,5 +1,6 @@
 import { validerCommande } from "./api.js";
 import { isEmailValid, isNomValid, isTelephoneValid } from "./validation.js";
+import { showMessage } from "./menu.js";
 
 const orderForm = document.querySelector(".panier-resume form");
 const panierContainer = document.getElementById("panier-container");
@@ -12,7 +13,12 @@ const submitForm = async (e) => {
   const nomComplet = document.getElementById("titulaire_carte").value;
   const telephone = document.getElementById("numero_telephone").value;
   const courriel = "exemple@gmail.com";
+
   const submitButton = orderForm.querySelector(".btn-submit");
+  if (!submitButton) {
+    showMessage("Erreur: Bouton de soumission non trouvé", "error");
+    return;
+  }
   const originalButtonHtml = submitButton.innerHTML;
 
   if (
@@ -20,13 +26,14 @@ const submitForm = async (e) => {
     !isNomValid(nomComplet) ||
     !isTelephoneValid(telephone)
   ) {
-    alert("Veuillez remplir tous les champs obligatoires.");
+    showMessage("Veuillez remplir tous les champs obligatoires.", "error");
     return;
   }
   if (!isEmailValid(courriel)) {
-    alert("Entrer une email valid");
+    showMessage("Veuillez saisir une adresse email valide", "error");
     return;
   }
+
   // Animation de chargement
   submitButton.disabled = true;
   submitButton.innerHTML =
@@ -46,11 +53,13 @@ const submitForm = async (e) => {
     }
 
     // Masquer le panier et afficher le reçu
-    panierContainer.style.display = "none";
-    recu.style.display = "block";
+    if (panierContainer) panierContainer.style.display = "none";
+    if (recu) recu.style.display = "block";
+
+    orderForm.reset();
   } catch (error) {
     console.error("Erreur de soumission:", error.message);
-    alert(`Erreur lors de la commande: ${error.message}`);
+    showMessage(`Erreur lors de la commande: ${error.message}`, "error");
   } finally {
     // Réactiver le bouton dans tous les cas
     submitButton.disabled = false;
@@ -63,13 +72,11 @@ if (orderForm) {
 }
 
 const afficherRecu = (order) => {
-  console.log("Order dans afficherRecu:", order);
-  console.log("Items:", order.items);
-
-  if (!order) {
-    console.error("Order invalide");
+  if (!order || !recu) {
+    console.error("Order invalide ou élément recu non trouvé");
     return;
   }
+
   if (!order.items || !Array.isArray(order.items) || order.items.length === 0) {
     console.warn("Aucun article à afficher – vérifie la réponse de l’API.");
   }
@@ -98,13 +105,23 @@ const afficherRecu = (order) => {
     minute: "2-digit",
   });
 
+  const nomClient = order.nomClient || "Client";
+  const adresseLivraison = order.adresse || "Non spécifiée";
+  const telephoneClient = order.telephone || "Non spécifié";
+  const emailClient = order.courriel || "Non spécifié";
+  const idCommande = order.id || "N/A";
+  const sousTotal = order.sousTotal || 0;
+  const transport = order.transport || 0;
+  const taxes = order.taxes || 0;
+  const total = order.total || 0;
+
   recu.innerHTML = `
     <div class="order-receipt">
       <div class="receipt-header">
         <i class="fas fa-check-circle success-icon"></i>
         <h4>Commande Confirmée !</h4>
-        <p>Merci pour votre commande, ${order.nomClient}!</p>
-        <p class="order-number">Numéro de commande : #${order.id || "N/A"}</p>
+        <p>Merci pour votre commande, ${nomClient}!</p>
+        <p class="order-number">Numéro de commande : #${idCommande}</p>
         <p>Date : ${dateRecu} à ${heureRecu}</p>
       </div>
 
@@ -119,19 +136,19 @@ const afficherRecu = (order) => {
         <h5>Résumé du Paiement</h5>
         <div class="receipt-total-line">
           <span>Sous-total :</span>
-          <span>${order.sousTotal} $CAD</span>
+          <span>${sousTotal} $CAD</span>
         </div>
         <div class="receipt-total-line">
           <span>Livraison :</span>
-          <span>${order.transport} $CAD</span>
+          <span>${transport} $CAD</span>
         </div>
         <div class="receipt-total-line">
           <span>Taxes (TVA) :</span>
-          <span>${order.taxes} $CAD</span>
+          <span>${taxes} $CAD</span>
         </div>
         <div class="receipt-total-line final">
           <span>Total Payé :</span>
-          <span>${order.total} $CAD</span>
+          <span>${total} $CAD</span>
         </div>
         <p class="payment-method-note">Méthode: Carte de crédit</p>
       </div>
@@ -139,17 +156,15 @@ const afficherRecu = (order) => {
       <div class="receipt-section">
         <h5>Livraison à</h5>
         <div class="address-info">
-          <p>${order.nomClient}</p>
-          <p>${order.adresse}</p>
-          <p>Téléphone: ${order.telephone}</p>
-          <p>Courriel: ${order.courriel}</p>
+          <p>${nomClient}</p>
+          <p>${adresseLivraison}</p>
+          <p>Téléphone: ${telephoneClient}</p>
+          <p>Courriel: ${emailClient}</p>
         </div>
       </div>
 
       <div class="receipt-footer">
-        <p>Un courriel de confirmation sera envoyé à ${
-          order.adresse.courriel
-        }.</p>
+        <p>Un courriel de confirmation sera envoyé à ${emailClient}.</p>
         <a href="/" class="btn-back-home">Retour à l'accueil</a>
       </div>
     </div>

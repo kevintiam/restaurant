@@ -285,6 +285,54 @@ const masquerNumeroCarte = (numeroCarte) => {
   return `•••• •••• •••• ${derniersChiffres}`;
 };
 
+/**
+ * Vérifie si l'ID d'un produit et sa quantité sont valides.
+ * * @param {number|string} id_produit - L'identifiant du produit.
+ * @param {number|string} quantite - La quantité désirée.
+ * @returns {boolean} Retourne true si les deux valeurs sont valides.
+ */
+const isArticleValid = (id_produit, quantite) => {
+  // --- 1. Validation de l'ID du Produit ---
+
+  // Convertit en nombre (pour gérer les IDs passés en chaîne de caractères)
+  const id = Number(id_produit);
+
+  if (!Number.isInteger(id) || id <= 0) {
+    // console.error("ID produit invalide ou manquant.");
+    return false;
+  }
+
+  // --- 2. Validation de la Quantité ---
+  // Convertit en nombre (pour gérer les quantités passées en chaîne de caractères)
+  const qty = Number(quantite);
+
+  // Vérifie si la quantité est un nombre entier positif
+  if (!Number.isInteger(qty) || qty <= 0) {
+    // console.error("Quantité invalide ou non positive.");
+    return false;
+  }
+  // --- 3. Validation Optionnelle (Limite Max) ---
+  if (qty < 1 || qty > 100) {
+    return false;
+  }
+
+  return true;
+};
+
+// Fonction pour vérifier si une valeur est un ID valide
+const isIdValid = (id) => {
+  const numId = Number(id);
+  return Number.isInteger(numId) && numId > 0;
+};
+
+const isValidQuantity = (quantite) => {
+  const numId = Number(quantite);
+  return (
+    Number.isInteger(numId) && 
+    numId >= 1 && 
+    numId < 100);
+};
+
 export {
   isNomValid,
   isTelephoneValid,
@@ -297,4 +345,7 @@ export {
   getTypeCarte,
   formaterNumeroCarte,
   masquerNumeroCarte,
+  isArticleValid,
+  isIdValid,
+  isValidQuantity,
 };

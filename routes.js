@@ -12,7 +12,12 @@ import {
   getTotalItems,
   calculateOrderTotals,
 } from "./model/restaurant.js";
-import { validerInfosClient } from "./middlewares/validation.js";
+import {
+  validerInfosClient,
+  validerArticle,
+  validerUpdate,
+  validerID,
+} from "./middlewares/validation.js";
 import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
@@ -76,7 +81,7 @@ router.get("/panier", async (req, res) => {
   }
 });
 // route pour ajouter un article au panier
-router.post("/panier/ajouter", async (req, res) => {
+router.post("/panier/ajouter", validerArticle, async (req, res) => {
   try {
     const { id_produit, quantite } = req.body;
     const produit = await addToPanier(id_produit, quantite);
@@ -91,15 +96,10 @@ router.post("/panier/ajouter", async (req, res) => {
     });
   }
 });
-router.put("/panier/update/:id", async (req, res) => {
+router.put("/panier/update/:id", validerUpdate, async (req, res) => {
   try {
     const id = req.params.id;
     const { quantite } = req.body;
-
-    if (quantite === undefined) {
-      return res.status(400).json({ message: "Quantité manquante." });
-    }
-
     const resultat = await updatePanierQuantity(id, quantite);
 
     res.status(200).json({
@@ -117,7 +117,7 @@ router.put("/panier/update/:id", async (req, res) => {
   }
 });
 // Route pour supprimer un article ou vider le panier (POST)
-router.delete("/panier/supprimer/:id", async (req, res) => {
+router.delete("/panier/supprimer/:id",validerID, async (req, res) => {
   try {
     const id = parseInt(req.params.id);
     const articleSupprime = await removeToPanier(id);
@@ -207,7 +207,7 @@ router.post("/commande/soumettre", validerInfosClient, async (req, res) => {
         taxes: itemsPourRecu.taxe,
         transport: itemsPourRecu.transport,
         total: itemsPourRecu.totalFinal,
-        courriel:courriel,
+        courriel: courriel,
       },
     });
   } catch (error) {

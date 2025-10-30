@@ -1,52 +1,66 @@
 import { addPanier, getTotalCartItemsAPI } from "./api.js";
+import { isValidQuantity, isArticleValid } from "./validation.js";
 
-document.addEventListener("DOMContentLoaded", async () => {
-  await updateCartBadge();
-  const productsContainer = document.querySelector(".product-container");
+const handleProductActions = async (e) => {
+  const card = e.target.closest(".product-card");
+  if (!card) return;
 
-  if (!productsContainer) {
+  const quantity = card.querySelector(".quantity");
+  if (!quantity) {
     return;
   }
 
-  productsContainer.addEventListener("click", async (e) => {
-    const card = e.target.closest(".product-card");
+  const quantityText = quantity.textContent.trim();
+  if (!isValidQuantity(quantityText)) {
+    showMessage("Quantite invalide");
+    return;
+  }
+  let number = parseInt(quantityText);
 
-    if (!card) return;
-    const quantity = card.querySelector(".quantity");
-    let number = parseInt(quantity.textContent.trim());
+  // bouton ajouter
+  if (e.target.closest(".btn-add")) {
+    number++;
+    quantity.textContent = number;
+  }
 
-    // bouton ajouter
-    if (e.target.closest(".btn-add")) {
-      number++;
+  // bouton retirer
+  if (e.target.closest(".btn-remove")) {
+    if (number > 1) {
+      number--;
       quantity.textContent = number;
     }
+  }
 
-    // bouton retirer
-    if (e.target.closest(".btn-remove")) {
-      if (number > 1) {
-        number--;
-        quantity.textContent = number;
-      }
-    }
+  // bouton ajouter
+  if (e.target.closest(".btn-valider")) {
+    const quantityFinal = parseInt(quantity.textContent);
+    await addToCard(card, quantityFinal);
+  }
+};
 
-    // bouton ajouter
-    if (e.target.closest(".btn-valider")) {
-      const productId = card.dataset.productId;
-      const productName = card
-        .querySelector(".product-name")
-        .textContent.trim();
-      const quantityElemt = parseInt(quantity.textContent);
-      showMessage(
-        `✅ ${productName} (x${quantityElemt}) ajouté au panier !`,
-        "success"
-      );
-      animateButton(e.target.closest(".btn-valider"));
-      const response = await addPanier(productId, quantityElemt);
-      await updateCartBadge();
-    }
-  });
-});
+const addToCard = async (card, quantity) => {
+  const productId = card.dataset.productId;
+  const productName = card.querySelector(".product-name").textContent.trim();
+  const button = card.querySelector(".btn-valider");
 
+  if (!isArticleValid(productId, quantity)) {
+    showMessage("Aritclee incorrecte");
+    return;
+  }
+
+  try {
+    animateButton(button);
+    const response = await addPanier(productId, quantity);
+    await updateCartBadge();
+    showMessage(
+      `✅ ${productName} (x${quantity}) ajouté au panier !`,
+      "success"
+    );
+  } catch (error) {
+    console.error("Erreur lors de l'ajout au panier:", error);
+    showMessage("Erreur lors de l'ajout au panier", "error");
+  }
+};
 const updateCartBadge = async () => {
   const cartCountElement = document.getElementById("cartCount");
   if (cartCountElement) {
@@ -84,6 +98,7 @@ const showMessage = (message, type) => {
 };
 
 const animateButton = (button) => {
+  if (!button) return;
   const originalText = button.innerHTML;
 
   // Animation
@@ -97,5 +112,16 @@ const animateButton = (button) => {
     button.style.background = "";
   }, 2000);
 };
+
+const initProduits = async () => {
+  await updateCartBadge();
+
+  const productsContainer = document.querySelector(".product-container");
+  if (productsContainer) {
+    productsContainer.addEventListener("click", handleProductActions);
+  }
+};
+
+document.addEventListener("DOMContentLoaded", initProduits);
 
 export { animateButton, showMessage, updateCartBadge };

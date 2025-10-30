@@ -18,7 +18,6 @@ const prisma = new PrismaClient();
 const router = Router();
 
 // Définition des routes
-
 // route pour recuperer tous les produits
 router.get("/all-products", async (req, res) => {
   try {
@@ -72,7 +71,6 @@ router.get("/panier", async (req, res) => {
         "./js/recus.js",
       ],
       donneesPanier: await getContenuPanier(),
-      
     });
   } catch (error) {
     res.status(500).send("Erreur lors du chargement du panier.");
@@ -204,16 +202,17 @@ router.post("/commande/soumettre", async (req, res) => {
     res.status(201).json({
       message: "Commande passée avec succès",
       order: {
-        id: commandeDB.id_commande,
+        id: commandeDB.reference_commande,
         date: new Date(commandeDB.date).toLocaleString("fr-CA"),
         nomClient: nom_complet,
-        telephoneClient: telephone,
+        telephone: telephone,
         adresse: adresse_livraison,
-        items: panier,
+        items: await getContenuPanier(),
         sousTotal: itemsPourRecu.sousTotal,
         taxes: itemsPourRecu.taxe,
         transport: itemsPourRecu.transport,
         total: itemsPourRecu.totalFinal,
+        courriel:courriel,
       },
     });
   } catch (error) {

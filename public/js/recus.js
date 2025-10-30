@@ -9,7 +9,7 @@ const submitForm = async (e) => {
 
   const adresse = document.getElementById("adresse_livraison");
   const nomComplet = document.getElementById("titulaire_carte");
-  const telephone = document.getElementById("numero_telephone"); 
+  const telephone = document.getElementById("numero_telephone");
   const courriel = "exemple@gmail.com";
   const submitButton = orderForm.querySelector(".btn-submit");
   const originalButtonHtml = submitButton.innerHTML;
@@ -36,18 +36,26 @@ const submitForm = async (e) => {
   });
 
   try {
-    const resultat = await validerCommande(adresse.value.trim(),nomComplet.value.trim(),telephone.value.trim(),courriel);
+    const resultat = await validerCommande(
+      adresse.value.trim(),
+      nomComplet.value.trim(),
+      telephone.value.trim(),
+      courriel
+    );
 
-    console.log("Commande réussie. Résultat:", resultat);
+    console.log("Résultat complet:", resultat);
+    console.log("ID de commande:", resultat.order?.id);
+    console.log("Items de commande:", resultat.order?.items);
+
+    // Afficher le reçu AVANT de masquer le panier
+    if (resultat.order) {
+      afficherRecu(resultat.order);
+    }
 
     // Masquer le panier et afficher le reçu
     panierContainer.style.display = "none";
     recu.style.display = "block";
 
-    // CORRECTION : Afficher les détails du reçu si nécessaire
-    if (resultat.order) {
-      afficherRecu(resultat.order);
-    }
   } catch (error) {
     console.error("Erreur de soumission:", error.message);
     alert(`Erreur lors de la commande: ${error.message}`);
@@ -58,94 +66,94 @@ const submitForm = async (e) => {
   }
 };
 
-// Fonction pour afficher les détails du reçu
-const afficherRecu = (order) => {
-  const recuElement = document.getElementById("order-receipt");
-
-  if (recuElement && order) {
-    // Construction de la liste des produits sous forme de lignes de tableau
-    const lignesProduits = order.produits
-      .map(
-        (produit) => `
-      <tr>
-        <td>${produit.nom}</td>
-        <td class="text-center">${produit.quantite}</td>
-        <td class="text-right">${produit.prixUnitaire.toFixed(2)} $</td>
-        <td class="text-right">${produit.sousTotal.toFixed(2)} $</td>
-      </tr>
-    `
-      )
-      .join(""); // Joindre toutes les lignes en une seule chaîne
-
-    // Pour un reçu plus professionnel, ajoutons la date actuelle
-    const dateRecu = new Date().toLocaleDateString("fr-CA", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-    const heureRecu = new Date().toLocaleTimeString("fr-CA", {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-
-    recuElement.innerHTML = `
-      <div class="recu-professionnel">
-        <h2 class="recu-titre">Facture d'Achat</h2>
-        
-        <div class="recu-entete">
-          <p><strong>Date:</strong> ${dateRecu} à ${heureRecu}</p>
-          <p><strong>Numéro de commande:</strong> #${order.id}</p>
-        </div>
-
-        <div class="recu-informations-client">
-          <p><strong>Client:</strong> ${order.nomClient}</p>
-          <p><strong>Téléphone:</strong> ${order.telephoneClient}</p>
-          <p><strong>Adresse de livraison:</strong> ${order.adresse}</p>
-        </div>
-
-        <h3 class="recu-sous-titre">Détails de la commande</h3>
-        
-        <table class="recu-table">
-          <thead>
-            <tr>
-              <th>Article</th>
-              <th class="text-center">Qté</th>
-              <th class="text-right">Prix Unitaire</th>
-              <th class="text-right">Total</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${lignesProduits}
-          </tbody>
-        </table>
-
-        <div class="recu-recapitulatif">
-          <p><strong>Sous-total:</strong> <span>${(
-            order.sousTotal || order.total
-          ).toFixed(2)} $CAD</span></p>
-          <p><strong>Taxes (TPS/TVQ):</strong> <span>${(
-            order.taxes || 0
-          ).toFixed(2)} $CAD</span></p>
-          <p class="grand-total"><strong>Grand Total:</strong> <span>${order.total.toFixed(
-            2
-          )} $CAD</span></p>
-        </div>
-        
-        <p class="recu-message">Merci pour votre commande! Un courriel de confirmation a été envoyé.</p>
-
-        <button onclick="window.location.href='/'" class="btn-continuer-achats">
-          Continuer les achats
-        </button>
-      </div>
-    `;
-  }
-};
-const afficherRecue = (order)=>{
-  
+if (orderForm) {
+  orderForm.addEventListener("submit", submitForm);
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  if (orderForm) {
-    orderForm.addEventListener("submit", submitForm);
+const afficherRecu = (order) => {
+  console.log("Order dans afficherRecu:", order);
+  console.log("Items:", order.items);
+
+  if (!order) {
+    console.error("Order invalide");
+    return;
   }
-});
+  if (!order.items || !Array.isArray(order.items) || order.items.length === 0) {
+  console.warn("Aucun article à afficher – vérifie la réponse de l’API.");
+}
+
+  const listeProdruits = order.items && Array.isArray(order.items)
+    ? order.items.map((produit) => `
+        <li data-id="${produit.id_produit}">
+          <span>${produit.quantite} x ${produit.nom}</span>
+          <span>${(produit.prix * produit.quantite).toFixed(2)} $CAD</span>
+        </li>
+      `).join("")
+    : '<li>Aucun produit</li>';
+
+  const dateRecu = new Date().toLocaleDateString("fr-CA", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+  const heureRecu = new Date().toLocaleTimeString("fr-CA", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+
+
+  recu.innerHTML = `
+    <div class="order-receipt">
+      <div class="receipt-header">
+        <i class="fas fa-check-circle success-icon"></i>
+        <h4>Commande Confirmée !</h4>
+        <p>Merci pour votre commande, ${order.nomClient}!</p>
+        <p class="order-number">Numéro de commande : #${order.id || "N/A"}</p>
+        <p>Date : ${dateRecu} à ${heureRecu}</p>
+      </div>
+
+      <div class="receipt-section">
+        <h5>Articles Commandés</h5>
+        <ul class="receipt-items-list">
+          ${listeProdruits}
+        </ul>
+      </div>
+
+      <div class="receipt-section">
+        <h5>Résumé du Paiement</h5>
+        <div class="receipt-total-line">
+          <span>Sous-total :</span>
+          <span>${order.sousTotal} $CAD</span>
+        </div>
+        <div class="receipt-total-line">
+          <span>Livraison :</span>
+          <span>${order.transport} $CAD</span>
+        </div>
+        <div class="receipt-total-line">
+          <span>Taxes (TVA) :</span>
+          <span>${order.taxes} $CAD</span>
+        </div>
+        <div class="receipt-total-line final">
+          <span>Total Payé :</span>
+          <span>${order.total} $CAD</span>
+        </div>
+        <p class="payment-method-note">Méthode: Carte de crédit</p>
+      </div>
+
+      <div class="receipt-section">
+        <h5>Livraison à</h5>
+        <div class="address-info">
+          <p>${order.nomClient}</p>
+          <p>${order.adresse}</p>
+          <p>Téléphone: ${order.telephone}</p>
+          <p>Courriel: ${order.courriel}</p>
+        </div>
+      </div>
+
+      <div class="receipt-footer">
+        <p>Un courriel de confirmation sera envoyé à ${order.adresse.courriel}.</p>
+        <a href="/" class="btn-back-home">Retour à l'accueil</a>
+      </div>
+    </div>
+  `;
+};

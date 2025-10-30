@@ -14,6 +14,23 @@ body {
   font-family: "Ysabeau Infant", sans-serif;
   font-style: normal;
 }
+html {
+  scroll-behavior: smooth;
+}
+
+/* Style pour les liens d'ancrage */
+.main-nav a[href^="#"] {
+  transition: all 0.3s ease;
+}
+
+.main-nav a[href^="#"]:hover {
+  color: var(--primary);
+}
+
+/* Ajustement pour le défilement vers les sections */
+section {
+  scroll-margin-top: 100px; /* Ajustez selon la hauteur de votre header */
+}
 
 main {
   flex: 1;
@@ -28,6 +45,11 @@ header {
   color: white;
   padding: 0 1rem;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  position: fixed;
+  top: 0;
+  left: 0; 
+  width: 100%; 
+  z-index: 10;
 }
 
 /* Footer Styles */

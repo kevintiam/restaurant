@@ -1,5 +1,4 @@
 // fonction pour ajouter un article au panier.
-
 const addPanier = async (id_produit, quantite) => {
   try {
     const response = await fetch("/panier/ajouter", {
@@ -95,14 +94,19 @@ const viderPanier = async () => {
   }
 };
 
-const validerCommande = async (adresseLivraison, nomComplet, telephone, courriel) => {
+const validerCommande = async (
+  adresseLivraison,
+  nomComplet,
+  telephone,
+  courriel
+) => {
   const data = {
-    adresse_livraison: adresseLivraison, 
-    nom_complet: nomComplet, 
-    telephone: telephone, 
-    courriel: courriel 
+    adresse_livraison: adresseLivraison,
+    nom_complet: nomComplet,
+    telephone: telephone,
+    courriel: courriel,
   };
-  
+
   try {
     const response = await fetch("/commande/soumettre", {
       method: "POST",
@@ -116,6 +120,7 @@ const validerCommande = async (adresseLivraison, nomComplet, telephone, courriel
       const errorData = await response.json();
       throw new Error(errorData.message || `Erreur HTTP: ${response.status}`);
     }
+    console.log(commande);
     return commande;
   } catch (error) {
     console.error("Erreur API (validerCommande):", error.message);

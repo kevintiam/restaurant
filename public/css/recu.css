@@ -1,207 +1,223 @@
 :root {
+  /* Mise à jour des couleurs et gradients pour un aspect plus riche */
   --primary: #4a6bff;
-  --primary-dark: #2a4bd9;
-  --success: #4ade80;
-  --text: #2d3748;
-  --text-light: #64748b;
-  --border: #e2e8f0;
-  --bg-light: #f8fafc;
+  --primary-dark: #3754d2; /* Couleur unie pour hover */
+  --success: #10b981; /* Vert plus vif */
+  --text: #1f2937; /* Texte plus sombre pour contraste */
+  --text-light: #6b7280;
+  --border: #e5e7eb;
+  --bg-light: #f9fafb;
   --white: #ffffff;
-  --shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+  --shadow: 0 10px 25px rgba(0, 0, 0, 0.15); /* Ombre plus marquée */
   --radius: 12px;
   --transition: all 0.3s ease;
+  --header-bg: linear-gradient(135deg, #A0522D 0%, #8B4513 100%); /* Simule l'effet "marron" amélioré */
 }
 
-/* ===== OVERLAY FLU ===== */
+/* ===== OVERLAY (Fond Flou) ===== */
 .receipt-overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background-color: rgba(0, 0, 0, 0.6); 
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   z-index: 9998;
-  display: none;
+  display: flex;
   align-items: center;
   justify-content: center;
+  overflow-y: auto; 
 }
 
-/* ===== CONTENEUR PRINCIPAL ===== */
+/* ===== CONTENEUR PRINCIPAL (Le Reçu) ===== */
 .order-receipt {
   background-color: var(--white);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
   max-width: 600px;
-  width: 90%;
-  overflow: hidden;
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  width: 100%;
+  
+  /* POSITIONNEMENT CORRIGÉ ET DÉFILEMENT */
+  position: relative; 
+  top: auto;
+  left: auto;
+  transform: none;
+  margin: 2rem 0; 
   z-index: 9999;
-  display: none;
+  max-height: 90vh; 
+  overflow-y: auto; 
 }
 
-/* ===== EN-TÊTE (HEADER) ===== */
+/* ===== EN-TÊTE (HEADER) - Amélioration du Style ===== */
 .receipt-header {
-  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  background: var(--header-bg); 
   color: var(--white);
-  padding: 30px;
+  padding: 1.5rem 1rem;
   text-align: center;
+  border-top-left-radius: var(--radius);
+  border-top-right-radius: var(--radius);
 }
 
 .receipt-header .success-icon {
-  font-size: 48px;
-  margin-bottom: 15px;
+  font-size: 52px;
+  margin-bottom: 0.6rem;
   color: var(--success);
 }
-
-.receipt-header h1 {
-  font-size: 24px;
+.order-number {
   font-weight: 600;
-  margin-bottom: 12px;
+  font-size: 1.1rem;
+  letter-spacing: 0.5px;
+  background: rgba(255,255,255,0.1);
+  padding: 0.5rem 1rem;
+  border-radius: 50px;
+  display: inline-block;
+  margin-top: 0.5rem;
+  backdrop-filter: blur(10px);
+}
+.receipt-header h4 {
+  font-size: 26px; 
+  font-weight: 700;
+  margin-top: 0;
+  margin-bottom: 0.5rem;
 }
 
 .receipt-header p {
-  margin-bottom: 8px;
-  opacity: 0.95;
-  font-size: 15px;
+  margin-bottom: 0.4rem;
+  opacity: 0.98;
+  font-size: 16px;
 }
 
 .order-number {
-  font-weight: 600;
-  font-size: 16px;
-  letter-spacing: 0.5px;
+  font-weight: 700;
+  font-size: 17px;
+  letter-spacing: 0.75px;
 }
 
-/* ===== SÉPARATEURS ===== */
-hr {
-  border: none;
-  height: 1px;
-  background-color: var(--border);
-  margin: 0;
-}
-
-/* ===== SECTIONS ===== */
+/* ===== SECTIONS (LISTES ET RÉSUMÉ) ===== */
 .receipt-section {
-  padding: 25px 30px;
-}
-
-.receipt-section h2 {
-  font-size: 18px;
-  color: var(--text);
-  margin-bottom: 16px;
-  font-weight: 600;
-  padding-bottom: 8px;
+  padding: 1rem 1.75rem; /* Augmentation du padding pour l'esthétique */
   border-bottom: 1px solid var(--border);
 }
-
-/* ===== LISTE DES ARTICLES ===== */
-.receipt-items-list {
-  list-style: none;
+.receipt-section:last-of-type {
+  border-bottom: none;
 }
 
+.receipt-section h5 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 1rem;
+  border-left: 3px solid var(--primary); /* Petite touche visuelle */
+  padding-left: 10px;
+}
+
+.receipt-items-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
 .receipt-items-list li {
   display: flex;
   justify-content: space-between;
-  padding: 12px 0;
-  border-bottom: 1px solid #f1f5f9;
+  padding: 0.6rem 0;
+  font-size: 1rem;
+  color: var(--text);
+  border-bottom: 1px dashed var(--border); /* Ligne pointillée pour le style */
 }
-
 .receipt-items-list li:last-child {
   border-bottom: none;
 }
 
-/* ===== LIGNES DE TOTAL ===== */
 .receipt-total-line {
   display: flex;
   justify-content: space-between;
-  padding: 10px 0;
-  font-size: 15px;
+  padding: 0.4rem 0;
+  font-size: 1rem;
+  color: var(--text-light);
 }
 
 .receipt-total-line.final {
-  border-top: 1px solid var(--border);
-  font-weight: 700;
-  font-size: 18px;
+  border-top: 2px solid var(--primary); /* Ligne de séparation plus marquée */
+  margin-top: 0.5rem;
+  padding-top: 0.8rem;
+  font-weight: 800;
+  font-size: 1.25rem;
   color: var(--text);
-  margin-top: 12px;
-  padding-top: 16px;
 }
 
-/* ===== ADRESSE DE LIVRAISON ===== */
-.delivery-address {
-  font-style: normal;
-  line-height: 1.6;
-  color: #4a5568;
-  margin-top: 8px;
+.address-info p {
+  line-height: 1.5;
+  margin: 0;
+  color: var(--text);
 }
 
 /* ===== PIED DE PAGE ===== */
 .receipt-footer {
   background-color: var(--bg-light);
-  padding: 25px 30px;
+  padding: 1.5rem;
   text-align: center;
   border-top: 1px solid var(--border);
+  border-bottom-left-radius: var(--radius);
+  border-bottom-right-radius: var(--radius);
 }
 
 .receipt-footer p {
-  margin-bottom: 16px;
+  margin-bottom: 1rem;
   color: var(--text-light);
   font-size: 15px;
 }
 
-/* ===== BOUTON ===== */
+/* ===== BOUTON - Amélioration du style ===== */
 .btn-back-home {
-  display: inline-block;
   background-color: var(--primary);
   color: var(--white);
-  padding: 12px 28px;
-  border-radius: 8px;
-  text-decoration: none;
+  padding: 10px 24px;
+  border-radius: 6px;
   font-weight: 600;
-  font-size: 16px;
+  font-size: 15px;
   transition: var(--transition);
-  box-shadow: 0 2px 6px rgba(74, 107, 255, 0.3);
+  box-shadow: 0 4px 12px rgba(74, 107, 255, 0.3);
 }
 
 .btn-back-home:hover {
   background-color: var(--primary-dark);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 10px rgba(74, 107, 255, 0.4);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 15px rgba(74, 107, 255, 0.4);
 }
 
-.btn-back-home:focus {
-  outline: 2px solid rgba(74, 107, 255, 0.5);
-  outline-offset: 2px;
-}
+/* ===== MEDIA QUERIES (RESPONSIVE) - Nouveau Breakpoint ===== */
 
-/* ===== RESPONSIVE (MOBILE) ===== */
-@media (max-width: 600px) {
+@media (max-width: 48rem) {
   .receipt-overlay {
-    padding: 20px;
+    padding: 10px;
   }
 
   .order-receipt {
-    width: 95%;
+    width: 98%;
+    max-width: none;
+    margin: 1rem 0;
   }
 
   .receipt-header {
-    padding: 24px 20px;
+    padding: 20px 15px;
+  }
+
+  .receipt-header h4 {
+    font-size: 24px;
   }
 
   .receipt-section {
-    padding: 20px;
+    padding: 15px 1.25rem;
   }
-
-  .receipt-header h1 {
-    font-size: 22px;
+  
+  .receipt-items-list li,
+  .receipt-total-line {
+    font-size: 0.95rem;
   }
-
-  .receipt-total-line,
-  .receipt-items-list li {
-    font-size: 14px;
+  
+  .receipt-total-line.final {
+    font-size: 1.15rem;
   }
 }

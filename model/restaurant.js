@@ -95,7 +95,7 @@ const passerCommande = async (
   const adresseComplete = [
     `CLIENT: ${nom_complet}`,
     `TÉL: ${telephone}`,
-    courriel ? `COURRIEL: ${courriel}` : "",
+    `COURRIEL: ${courriel}`,
     `ADRESSE: ${adresse_livraison}`,
   ]
     .filter(Boolean)
@@ -103,9 +103,13 @@ const passerCommande = async (
 
   try {
     const nouvelleCommande = await prisma.$transaction(async (tx) => {
+      //Création de l'ID formaté (CM-timestamp)
+      const uniqueSuffix = Date.now(); 
+      const formattedId = `CM-${uniqueSuffix}`;
       const commande = await tx.commande.create({
         data: {
           id_utilisateur: 1,
+          reference_commande: formattedId,
           id_etat_commande: 1,
           date: new Date(),
           adresse_livraison: adresseComplete,
@@ -121,11 +125,8 @@ const passerCommande = async (
       await tx.commandeProduit.createMany({
         data: produitsData,
       });
-
       return commande;
     });
-    
-    panierTemporaire.length = 0;
     return nouvelleCommande;
     
   } catch (error) {

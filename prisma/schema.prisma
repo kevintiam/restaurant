@@ -46,14 +46,15 @@ model Utilisateur {
 }
 
 model Commande {
-  id_commande       Int               @id @default(autoincrement())
-  id_utilisateur    Int
-  id_etat_commande  Int
-  date              DateTime
-  adresse_livraison String
-  utilisateur       Utilisateur       @relation(fields: [id_utilisateur], references: [id_utilisateur])
-  etat_commande     EtatCommande      @relation(fields: [id_etat_commande], references: [id_etat_commande])
-  produits          CommandeProduit[]
+  id_commande        Int               @id @default(autoincrement())
+  reference_commande String?           @unique
+  id_utilisateur     Int
+  id_etat_commande   Int
+  date               DateTime
+  adresse_livraison  String
+  utilisateur        Utilisateur       @relation(fields: [id_utilisateur], references: [id_utilisateur])
+  etat_commande      EtatCommande      @relation(fields: [id_etat_commande], references: [id_etat_commande])
+  produits           CommandeProduit[]
 }
 
 model CommandeProduit {

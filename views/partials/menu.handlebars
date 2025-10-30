@@ -1,36 +1,38 @@
-<section class="menu">
-  <div class="title">
-    <h1>Nos Spécialités Africaines</h1>
-    <h2>Des plats traditionnels préparés avec passion et authenticité</h2>
-  </div>
-  <div class="product-container">
+<section id="menu" class="menu">
+  <div>
+    <div class="title">
+      <h1>Nos Spécialités Africaines</h1>
+      <h2>Des plats traditionnels préparés avec passion et authenticité</h2>
+    </div>
+    <div class="product-container">
 
-    {{#each products}}
+      {{#each products}}
         <div class="product-card" data-product-id="{{this.id_produit}}">
-        <div class="image-cars">
+          <div class="image-cars">
             <div class="product-image">
-            <img src="{{this.chemin_image}}" alt="{{this.nom}}" />
-            <span class="price">{{this.prix}}$CAD</span>
+              <img src="{{this.chemin_image}}" alt="{{this.nom}}" />
+              <span class="price">{{this.prix}}$CAD</span>
             </div>
-        </div>
+          </div>
 
-        <div class="product-info">
+          <div class="product-info">
             <span class="product-name">{{this.nom}}</span>
             <span class="product-description">{{this.description}}</span>
             <div class="booking">
-            <button class="quantity-btn btn-remove">
+              <button class="quantity-btn btn-remove">
                 <i class="fas fa-minus"></i>
-            </button>
-            <span class="quantity">1</span>
-            <button class="quantity-btn btn-add">
+              </button>
+              <span class="quantity">1</span>
+              <button class="quantity-btn btn-add">
                 <i class="fas fa-plus"></i>
-            </button>
+              </button>
             </div>
             <div class="valider">
-            <button class="btn-valider">Ajouter au panier</button>
+              <button class="btn-valider">Ajouter au panier</button>
             </div>
+          </div>
         </div>
-        </div>
-    {{/each}}
+      {{/each}}
+    </div>
   </div>
 </section>

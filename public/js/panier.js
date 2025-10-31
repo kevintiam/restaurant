@@ -1,13 +1,18 @@
-import { removeToPanier, updatePanierQuantity, viderPanier } from "./api.js";
+import {
+  removeToPanier,
+  updatePanierQuantity,
+  viderPanier,
+  getPanierItems,
+  calculateOrderTotals
+} from "./api.js";
 import { animateButton, showMessage, updateCartBadge } from "./menu.js";
 import { isIdValid, isValidQuantity } from "./validation.js";
-import { calculateOrderTotals } from "../../model/restaurant.js";
+
 
 const panierContain = document.getElementById("panier-items");
-
 const updateSummary = async () => {
   try {
-    const allItems = panierContain.querySelectorAll(".item");
+    const allItems = await getPanierItems();
     const calcul = await calculateOrderTotals(allItems, 0.2, 0.1);
 
     const shipping = document.getElementById("transport");
@@ -27,7 +32,7 @@ const updateSummary = async () => {
 // Gestion de la quantité
 const handleQuantityChange = async (itemElement, newQuantity) => {
   const id = itemElement.dataset.idProduit;
-  
+
   if (!isIdValid(id)) {
     showMessage("ID de produit invalide");
     return false;
@@ -50,7 +55,7 @@ const handleQuantityChange = async (itemElement, newQuantity) => {
 // Suppression d'un article
 const handleRemoveItem = async (itemElement) => {
   const id = itemElement.dataset.idProduit;
-  
+
   if (!isIdValid(id)) {
     showMessage("ID de produit invalide");
     return;
@@ -120,7 +125,7 @@ const viderPanierTotal = async () => {
   vider.addEventListener("click", async () => {
     try {
       const resultat = await viderPanier();
-      
+
       if (resultat && resultat.success !== false) {
         if (panierContain) {
           panierContain.innerHTML = "";
@@ -130,7 +135,10 @@ const viderPanierTotal = async () => {
         await updateCartBadge();
         showMessage(resultat.message, "success");
       } else {
-        showMessage(resultat?.message || "Erreur lors du vidage du panier", "error");
+        showMessage(
+          resultat?.message || "Erreur lors du vidage du panier",
+          "error"
+        );
       }
     } catch (error) {
       showMessage("Erreur lors du vidage du panier", "error");
@@ -141,7 +149,7 @@ const viderPanierTotal = async () => {
 // Initialisation
 const initPanier = async () => {
   await updateCartBadge();
-  
+
   if (panierContain) {
     await viderPanierTotal();
     panierContain.addEventListener("click", updateQuantity);

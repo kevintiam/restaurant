@@ -1,5 +1,5 @@
 import { validerCommande } from "./api.js";
-import { isEmailValid, isNomValid, isTelephoneValid } from "./validation.js";
+import { isEmailValid, isNomValid, isTelephoneValid,isAdresseValid } from "./validation.js";
 import { showMessage } from "./menu.js";
 
 const orderForm = document.querySelector(".panier-resume form");
@@ -9,9 +9,10 @@ const recu = document.getElementById("order-receipt");
 const submitForm = async (e) => {
   e.preventDefault();
 
-  const adresse = document.getElementById("adresse_livraison").value;
-  const nomComplet = document.getElementById("titulaire_carte").value;
-  const telephone = document.getElementById("numero_telephone").value;
+  const adresse = document.getElementById("adresse_livraison");
+  const nomComplet = document.getElementById("titulaire_carte");
+  const telephone = document.getElementById("numero_telephone");
+
   const courriel = "exemple@gmail.com";
 
   const submitButton = orderForm.querySelector(".btn-submit");
@@ -22,9 +23,9 @@ const submitForm = async (e) => {
   const originalButtonHtml = submitButton.innerHTML;
 
   if (
-    !isNomValid(adresse) ||
-    !isNomValid(nomComplet) ||
-    !isTelephoneValid(telephone)
+    !isAdresseValid(adresse.value) ||
+    !isNomValid(nomComplet.value) ||
+    !isTelephoneValid(telephone.value)
   ) {
     showMessage("Veuillez remplir tous les champs obligatoires.", "error");
     return;
@@ -41,9 +42,9 @@ const submitForm = async (e) => {
 
   try {
     const resultat = await validerCommande(
-      adresse,
-      nomComplet,
-      telephone,
+      adresse.value,
+      nomComplet.value,
+      telephone.value,
       courriel
     );
 

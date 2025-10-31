@@ -46,11 +46,6 @@ header {
   color: white;
   padding: 0 1rem;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    position: fixed;
-  top: 0;
-  left: 0; 
-  width: 100%; 
-  z-index: 10;
 }
 
 /* Footer Styles */
@@ -173,6 +168,7 @@ header .container {
   align-items: center;
   gap: 8px;
   font-family: "Ysabeau Infant", sans-serif;
+  text-decoration: none;
 }
 
 .btn-outline {

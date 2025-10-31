@@ -28,6 +28,21 @@ const isTelephoneValid = (telephone) => {
     phoneRegex.test(cleanedTelephone)
   );
 };
+
+// validation des adresses
+const isAdresseValid = (adresse) => {
+    if (typeof adresse !== "string") return false;
+
+    const trimmedAdresse = adresse.trim(); 
+
+    // Vérification de la présence de chiffres (pour le numéro civique)
+    const containsNumber = /\d/.test(trimmedAdresse);
+    
+    // Vérification de la présence de lettres (pour le nom de la rue)
+    const containsLetter = /[a-zA-ZÀ-ÿ]/.test(trimmedAdresse); 
+
+    return containsNumber && containsLetter;
+};
 // validation de l'email (Version Corrigée et Robuste)
 const isEmailValid = (email) => {
   if (typeof email !== "string") return false;
@@ -348,4 +363,5 @@ export {
   isArticleValid,
   isIdValid,
   isValidQuantity,
+  isAdresseValid,
 };

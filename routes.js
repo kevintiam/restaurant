@@ -80,6 +80,32 @@ router.get("/panier", async (req, res) => {
     res.status(500).send("Erreur lors du chargement du panier.");
   }
 });
+//route pour se connecter
+router.get("/login", async (req, res) => {
+  try {
+    res.render("login", {
+      title: "Login",
+      styles: [
+        "./css/header.css",
+        "./css/menu.css",
+        "./css/home.css",
+        "./css/about.css",
+        "./css/panier.css",
+        "./css/recu.css",
+        "./css/login.css"
+      ],
+      scripts: [
+        "./js/header.js",
+        "./js/menu.js",
+        "./js/panier.js",
+        "./js/recus.js",
+        "./js/login.js"
+      ],
+    });
+  } catch (error) {
+    res.status(500).send("Erreur lors du chargement du panier.");
+  }
+});
 // route pour ajouter un article au panier
 router.post("/panier/ajouter", validerArticle, async (req, res) => {
   try {
@@ -117,7 +143,7 @@ router.put("/panier/update/:id", validerUpdate, async (req, res) => {
   }
 });
 // Route pour supprimer un article ou vider le panier (POST)
-router.delete("/panier/supprimer/:id",validerID, async (req, res) => {
+router.delete("/panier/supprimer/:id", validerID, async (req, res) => {
   try {
     const id = parseInt(req.params.id);
     const articleSupprime = await removeToPanier(id);
@@ -159,6 +185,16 @@ router.delete("/panier/vider", async (req, res) => {
     res.status(500).json({
       message: error.message || "Erreur lors du vidage du panier.",
     });
+  }
+});
+// router pour recuperer tous les articles du panier
+router.get("/panier/all", async (req, res) => {
+  try {
+    const panier = await getContenuPanier();
+    res.status(200).json(panier);
+  } catch (error) {
+    console.error("Erreur calcul total items:", error);
+    res.status(500).json({ message: "Erreur serveur" });
   }
 });
 // Route pour soumettre la commande (POST)

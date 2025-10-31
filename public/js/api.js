@@ -77,6 +77,19 @@ const getTotalCartItemsAPI = async () => {
   }
 };
 
+const getPanierItems = async () => {
+  try {
+    const response = await fetch("/panier/all");
+    if (!response.ok) {
+      throw new Error(`Erreur HTTP: ${response.status}`);
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Erreur API (getPanierItems):", error.message);
+    throw error;
+  }
+};
 const viderPanier = async () => {
   try {
     const response = await fetch("/panier/vider", {
@@ -128,6 +141,24 @@ const validerCommande = async (
   }
 };
 
+// fonction pour le calcul 
+const calculateOrderTotals = async (itemsPourRecu, TAXE, TRANSPORT_RATE) => {
+  const sousTotal = itemsPourRecu.reduce((somme, item) => {
+    const itemPrice = item.quantite * item.prix;
+    return somme + itemPrice;
+  }, 0);
+
+  const transport = sousTotal * TRANSPORT_RATE;
+  const taxe = sousTotal * TAXE;
+  const totalFinal = sousTotal + taxe + transport;
+
+  return {
+    sousTotal: sousTotal.toFixed(2),
+    taxe: taxe.toFixed(2),
+    transport: transport.toFixed(2),
+    totalFinal: totalFinal.toFixed(2),
+  };
+};
 export {
   addPanier,
   removeToPanier,
@@ -135,4 +166,7 @@ export {
   getTotalCartItemsAPI,
   viderPanier,
   validerCommande,
+  getPanierItems,
+  calculateOrderTotals,
+  
 };

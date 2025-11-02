@@ -5,6 +5,7 @@ import {
   isArticleValid,
   isIdValid,
   isAdresseValid,
+  isValidPassword,
 } from "../public/js/validation.js";
 
 // --- 1. Validation des informations client (Adresse, Nom, Téléphone, Courriel) ---
@@ -18,12 +19,9 @@ const validerInfosClient = (req, res, next) => {
   }
 
   if (!isNomValid(nom_complet)) {
-    return res
-      .status(400)
-      .json({
-        message:
-          "Le nom complet (titulaire de carte) est invalide ou manquant.",
-      });
+    return res.status(400).json({
+      message: "Le nom complet (titulaire de carte) est invalide ou manquant.",
+    });
   }
 
   if (!isTelephoneValid(telephone)) {
@@ -41,46 +39,42 @@ const validerInfosClient = (req, res, next) => {
   next();
 };
 
-// --- 2. Validation d'un article unique 
+// --- 2. Validation d'un article unique
 const validerArticle = (req, res, next) => {
   const { id_produit, quantite } = req.body;
 
   if (id_produit === undefined || quantite === undefined) {
-    return res
-      .status(400)
-      .json({
-        message:
-          "L'ID du produit ou la quantité est manquant dans le corps de la requête.",
-      });
+    return res.status(400).json({
+      message:
+        "L'ID du produit ou la quantité est manquant dans le corps de la requête.",
+    });
   }
 
   if (!isArticleValid(id_produit, quantite)) {
-    return res
-      .status(400)
-      .json({
-        message:
-          "L'ID du produit ou la quantité n'est pas dans un format valide (entier positif, max 99).",
-      });
+    return res.status(400).json({
+      message:
+        "L'ID du produit ou la quantité n'est pas dans un format valide (entier positif, max 99).",
+    });
   }
 
   next();
 };
 
-// --- 3. Validation de mise à jour 
+// --- 3. Validation de mise à jour
 const validerUpdate = (req, res, next) => {
   const id = req.params.id;
-  const { quantite } = req.body; 
+  const { quantite } = req.body;
   if (id === undefined) {
     return res.status(400).json({
       message:
         "L'identifiant du produit (ID) est manquant dans l'adresse (URL).",
     });
-  } 
+  }
   if (quantite === undefined) {
     return res.status(400).json({
       message: "La quantité est manquante dans le corps de la requête.",
     });
-  } 
+  }
   if (!isArticleValid(id, quantite)) {
     return res.status(400).json({
       message:
@@ -91,7 +85,7 @@ const validerUpdate = (req, res, next) => {
   next();
 };
 
-// --- 4. Validation d'un ID de paramètre 
+// --- 4. Validation d'un ID de paramètre
 const validerID = (req, res, next) => {
   const id = req.params.id;
   if (id === undefined) {
@@ -108,11 +102,71 @@ const validerID = (req, res, next) => {
   next();
 };
 
+// Middleware pour vérifier l'authentification
 const requireAuth = (req, res, next) => {
-  if (!req.session.userId) {
-    return res.status(401).json({ error: "Non autorisé" });
+  if (req.session && req.session.isAuthenticated) {
+    return next();
   }
-  req.user = { id: req.session.userId };
+  // Si c'est une requête API, retourner une erreur JSON
+  if (req.xhr || req.headers.accept.indexOf('json') > -1) {
+    return res.status(401).json({ 
+      error: "Non authentifié", 
+      message: "Vous devez être connecté pour accéder à cette ressource",
+      redirectUrl: "/login"
+    });
+  }
+  // Sinon, rediriger vers la page de connexion
+  res.redirect("/login");
+};
+
+// validation des informations utilisateur lors de la création de compte
+const validerInfosUtilisateur = (req, res, next) => {
+  const { nom, prenom, mot_de_passe, courriel, id_type_utilisateur } = req.body;
+  if (!nom || !prenom || !id_type_utilisateur || !courriel || !mot_de_passe) {
+    return res.status(400).json({ message: "Tous les champs sont requis." });
+  }
+  if (!isNomValid(nom)) {
+    return res.status(400).json({ message: "Le nom est invalide." });
+  }
+  if (!isNomValid(prenom)) {
+    return res.status(400).json({ message: "Le prénom est invalide." });
+  }
+  if (!isValidPassword(mot_de_passe)) {
+    return res.status(400).json({ message: "Le mot de passe est invalide." });
+  }
+  if (!isEmailValid(courriel)) {
+    return res
+      .status(400)
+      .json({ message: "L'adresse courriel est invalide." });
+  }
+  if(!isIdValid(id_type_utilisateur)) {
+    return res.status(400).json({ message: "La catégorie d'utilisateur est invalide." });
+  }
   next();
 };
-export { requireAuth ,validerInfosClient, validerArticle, validerUpdate, validerID };
+
+// validation pour la connexion utilisateur
+const validerLogin = (req, res, next) => {
+  const { courriel, mot_de_passe } = req.body;
+  if (!courriel || !mot_de_passe) {
+    return res
+      .status(400)
+      .json({ message: "L'email et le mot de passe sont requis." });
+  }
+  if (!isEmailValid(courriel)) {
+    return res
+      .status(400)
+      .json({ message: "L'adresse courriel est invalide." });
+  }
+  next();
+};
+
+export {
+  requireAuth,
+  validerInfosClient,
+  validerArticle,
+  validerUpdate,
+  validerID,
+  validerInfosUtilisateur,
+  validerLogin,
+};

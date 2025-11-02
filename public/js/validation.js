@@ -300,20 +300,12 @@ const masquerNumeroCarte = (numeroCarte) => {
   return `•••• •••• •••• ${derniersChiffres}`;
 };
 
-/**
- * Vérifie si l'ID d'un produit et sa quantité sont valides.
- * * @param {number|string} id_produit - L'identifiant du produit.
- * @param {number|string} quantite - La quantité désirée.
- * @returns {boolean} Retourne true si les deux valeurs sont valides.
- */
+ // Vérifie si l'ID d'un produit et sa quantité sont valides.
+
 const isArticleValid = (id_produit, quantite) => {
   // --- 1. Validation de l'ID du Produit ---
-
-  // Convertit en nombre (pour gérer les IDs passés en chaîne de caractères)
   const id = Number(id_produit);
-
   if (!Number.isInteger(id) || id <= 0) {
-    // console.error("ID produit invalide ou manquant.");
     return false;
   }
 
@@ -348,6 +340,25 @@ const isValidQuantity = (quantite) => {
     numId < 100);
 };
 
+const isValidPassword = (password) => {
+  if (typeof password !== "string") return false;
+  if( password.length < 8 || password.length > 128) {
+    return false;
+  }
+  if (!/[a-z]/.test(password)) {
+    return false;
+  }
+  if (!/[A-Z]/.test(password)) {
+    return false;
+  }
+  if (!/\d/.test(password)) {
+    return false;
+  }
+  if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~`]/.test(password)) {
+    return false;
+  }
+  return true;
+};
 export {
   isNomValid,
   isTelephoneValid,
@@ -364,4 +375,5 @@ export {
   isIdValid,
   isValidQuantity,
   isAdresseValid,
+  isValidPassword,
 };

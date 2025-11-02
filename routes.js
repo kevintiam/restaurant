@@ -1,3 +1,5 @@
+import bcrypt from "bcrypt";
+
 import { Router } from "express";
 import {
   getAllProducts,
@@ -20,6 +22,9 @@ import {
   validerArticle,
   validerUpdate,
   validerID,
+  validerInfosUtilisateur,
+  validerLogin,
+  requireAuth,
 } from "./middlewares/validation.js";
 import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
@@ -111,62 +116,77 @@ router.get("/login", async (req, res) => {
   }
 });
 // route pour ajouter un article au panier
-router.post("/panier/ajouter", validerArticle, async (req, res) => {
-  try {
-    const { id_produit, quantite } = req.body;
-    const produit = await addToPanier(id_produit, quantite);
-    res.status(200).json({
-      message: "Produit ajouté avec succès.",
-      data: produit,
-    });
-  } catch (error) {
-    console.error("Erreur lors de l'ajout au panier :", error.message);
-    res.status(500).json({
-      message: "Erreur lors de l'ajout au panier : " + error.message,
-    });
-  }
-});
-router.put("/panier/update/:id", validerUpdate, async (req, res) => {
-  try {
-    const id = req.params.id;
-    const { quantite } = req.body;
-    const resultat = await updatePanierQuantity(id, quantite);
-
-    res.status(200).json({
-      message: `Article ${resultat.action} avec succès.`,
-      data: resultat.item,
-    });
-  } catch (error) {
-    console.error(
-      "Erreur lors de la mise à jour de la quantité:",
-      error.message
-    );
-    res.status(400).json({
-      message: error.message,
-    });
-  }
-});
-// Route pour supprimer un article ou vider le panier (POST)
-router.delete("/panier/supprimer/:id", validerID, async (req, res) => {
-  try {
-    const id = parseInt(req.params.id);
-    const articleSupprime = await removeToPanier(id);
-    if (articleSupprime) {
+router.post(
+  "/panier/ajouter",
+  requireAuth,
+  validerArticle,
+  async (req, res) => {
+    try {
+      const { id_produit, quantite } = req.body;
+      const produit = await addToPanier(id_produit, quantite);
       res.status(200).json({
-        message: `Article '${articleSupprime.nom}' supprimé avec succès`,
+        message: "Produit ajouté avec succès.",
+        data: produit,
       });
-    } else {
-      res.status(400).json({
-        message: "erreur lors de la suppression de l'article",
+    } catch (error) {
+      console.error("Erreur lors de l'ajout au panier :", error.message);
+      res.status(500).json({
+        message: "Erreur lors de l'ajout au panier : " + error.message,
       });
     }
-  } catch (error) {
-    console.error("Erreur de suppression:", error.message);
-    res.status(500).json({
-      message: error.message || "Erreur lors de la suppression de l'article.",
-    });
   }
-});
+);
+router.put(
+  "/panier/update/:id",
+  requireAuth,
+  validerUpdate,
+  async (req, res) => {
+    try {
+      const id = req.params.id;
+      const { quantite } = req.body;
+      const resultat = await updatePanierQuantity(id, quantite);
+
+      res.status(200).json({
+        message: `Article ${resultat.action} avec succès.`,
+        data: resultat.item,
+      });
+    } catch (error) {
+      console.error(
+        "Erreur lors de la mise à jour de la quantité:",
+        error.message
+      );
+      res.status(400).json({
+        message: error.message,
+      });
+    }
+  }
+);
+// Route pour supprimer un article ou vider le panier (POST)
+router.delete(
+  "/panier/supprimer/:id",
+  requireAuth,
+  validerID,
+  async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const articleSupprime = await removeToPanier(id);
+      if (articleSupprime) {
+        res.status(200).json({
+          message: `Article '${articleSupprime.nom}' supprimé avec succès`,
+        });
+      } else {
+        res.status(400).json({
+          message: "erreur lors de la suppression de l'article",
+        });
+      }
+    } catch (error) {
+      console.error("Erreur de suppression:", error.message);
+      res.status(500).json({
+        message: error.message || "Erreur lors de la suppression de l'article.",
+      });
+    }
+  }
+);
 // route pour recuperer le nombre total d'element
 router.get("/panier/total-items", async (req, res) => {
   try {
@@ -178,7 +198,7 @@ router.get("/panier/total-items", async (req, res) => {
   }
 });
 // route pour vider le panier
-router.delete("/panier/vider", async (req, res) => {
+router.delete("/panier/vider", requireAuth, async (req, res) => {
   try {
     const message = await viderPanier();
     res.status(200).json({
@@ -201,65 +221,70 @@ router.get("/panier/all", async (req, res) => {
     res.status(500).json({ message: "Erreur serveur" });
   }
 });
-// Route pour soumettre la commande (POST)
-router.post("/commande/soumettre", validerInfosClient, async (req, res) => {
-  try {
-    const { adresse_livraison, nom_complet, telephone, courriel } = req.body;
+// Route pour soumettre la commande
+router.post(
+  "/commande/soumettre",
+  requireAuth,
+  validerInfosClient,
+  async (req, res) => {
+    try {
+      const { adresse_livraison, nom_complet, telephone, courriel } = req.body;
 
-    if (!adresse_livraison || !nom_complet || !telephone) {
-      return res.status(400).json({
-        message: "Adresse, nom complet et téléphone sont requis.",
+      if (!adresse_livraison || !nom_complet || !telephone) {
+        return res.status(400).json({
+          message: "Adresse, nom complet et téléphone sont requis.",
+        });
+      }
+
+      const panier = await getContenuPanier();
+      if (panier.length === 0) {
+        return res.status(400).json({
+          message: "Le panier est vide. Impossible de soumettre la commande.",
+        });
+      }
+
+      const TAXE_RATE = 0.2;
+      const SHIPPING_COST = 0.1;
+      const itemsPourRecu = await calculateOrderTotals(
+        panier,
+        TAXE_RATE,
+        SHIPPING_COST
+      );
+
+      const commandeDB = await passerCommande(
+        adresse_livraison,
+        nom_complet,
+        telephone,
+        courriel
+      );
+
+      res.status(201).json({
+        message: "Commande passée avec succès",
+        order: {
+          id: commandeDB.reference_commande,
+          date: new Date(commandeDB.date).toLocaleString("fr-CA"),
+          nomClient: nom_complet,
+          telephone: telephone,
+          adresse: adresse_livraison,
+          items: await getContenuPanier(),
+          sousTotal: itemsPourRecu.sousTotal,
+          taxes: itemsPourRecu.taxe,
+          transport: itemsPourRecu.transport,
+          total: itemsPourRecu.totalFinal,
+          courriel: courriel,
+        },
+      });
+    } catch (error) {
+      console.error(
+        "Erreur lors de la soumission de la commande:",
+        error.message
+      );
+      res.status(500).json({
+        message: error.message,
       });
     }
-
-    const panier = await getContenuPanier();
-    if (panier.length === 0) {
-      return res.status(400).json({
-        message: "Le panier est vide. Impossible de soumettre la commande.",
-      });
-    }
-
-    const TAXE_RATE = 0.2;
-    const SHIPPING_COST = 0.1;
-    const itemsPourRecu = await calculateOrderTotals(
-      panier,
-      TAXE_RATE,
-      SHIPPING_COST
-    );
-
-    const commandeDB = await passerCommande(
-      adresse_livraison,
-      nom_complet,
-      telephone,
-      courriel
-    );
-
-    res.status(201).json({
-      message: "Commande passée avec succès",
-      order: {
-        id: commandeDB.reference_commande,
-        date: new Date(commandeDB.date).toLocaleString("fr-CA"),
-        nomClient: nom_complet,
-        telephone: telephone,
-        adresse: adresse_livraison,
-        items: await getContenuPanier(),
-        sousTotal: itemsPourRecu.sousTotal,
-        taxes: itemsPourRecu.taxe,
-        transport: itemsPourRecu.transport,
-        total: itemsPourRecu.totalFinal,
-        courriel: courriel,
-      },
-    });
-  } catch (error) {
-    console.error(
-      "Erreur lors de la soumission de la commande:",
-      error.message
-    );
-    res.status(500).json({
-      message: error.message,
-    });
   }
-});
+);
 // route pour les commandes
 router.get("/commandes", async (req, res) => {
   try {
@@ -275,7 +300,7 @@ router.get("/commandes", async (req, res) => {
     res.status(500).send("Erreur lors du chargement des commandes.");
   }
 });
-// Route pour modifier le statut d'une commande (POST)
+// Route pour modifier le statut d'une commande
 router.put("/commandes/statut/:id_commande", async (req, res) => {
   try {
     const id_commande = parseInt(req.params.id_commande);
@@ -298,16 +323,18 @@ router.put("/commandes/statut/:id_commande", async (req, res) => {
   }
 });
 // route pour ajouter un nouvel utilisateur
-router.post("/user/add", async (req, res) => {
+router.post("/user/add", validerInfosUtilisateur, async (req, res) => {
   try {
     const { nom, prenom, mot_de_passe, courriel, id_type_utilisateur } =
       req.body;
 
-    if (!nom || !prenom || !mot_de_passe || !id_type_utilisateur || !courriel) {
-      return res
-        .status(400)
-        .json({ message: "Tous les champs sont obligatoires" });
-    }
+    console.log("Données reçues:", {
+      nom,
+      prenom,
+      courriel,
+      id_type_utilisateur,
+      mdp_length: mot_de_passe?.length,
+    });
 
     const newUser = await addUser(
       nom,
@@ -320,6 +347,7 @@ router.post("/user/add", async (req, res) => {
     res.status(201).json(newUser);
   } catch (error) {
     console.error("Erreur lors de l'ajout de l'utilisateur:", error.message);
+    console.error("Stack trace:", error.stack);
     if (error.message.includes("Cet email est déjà utilisé.")) {
       return res.status(409).json({ message: error.message });
     }
@@ -332,27 +360,65 @@ router.post("/user/add", async (req, res) => {
   }
 });
 //route pour se connecter
-router.post("/user/login", async (req, res) => {
+router.post("/user/login", validerLogin, async (req, res) => {
   const { courriel, mot_de_passe } = req.body;
   if (!courriel || !mot_de_passe) {
-     return res.status(400).json({ error: "Email et mot de passe requis" });
+    return res.status(400).json({ error: "Email et mot de passe requis" });
   }
-    try {
+  try {
     const user = await connexionUser(courriel);
-    if(!user){
+    if (!user) {
       return res.status(401).json({ error: "Identifiants invalides" });
     }
 
-    const isMatch = await bcrypt.compare(mot_de_passe, user.mot_de_passe)
+    const isMatch = await bcrypt.compare(mot_de_passe, user.mot_de_passe);
 
     if (!isMatch) {
       return res.status(401).json({ error: "Identifiants invalides" });
     }
-    const { password: _, ...safeUser } = user;
-    res.json({ message: "Connexion réussie", user: safeUser });
+
+    // Créer la session utilisateur
+    const { mot_de_passe: _, ...safeUser } = user;
+    req.session.user = safeUser;
+    req.session.isAuthenticated = true;
+
+    res.json({
+      message: "Connexion réussie",
+      user: safeUser,
+      redirectUrl: "/", // Page d'accueil ou tableau de bord
+    });
   } catch (error) {
     console.error("Erreur login:", error);
     res.status(500).json({ error: "Erreur interne du serveur" });
   }
 });
+// Route pour se déconnecter
+router.post("/user/logout", (req, res) => {
+  req.session.destroy((err) => {
+    if (err) {
+      console.error("Erreur déconnexion:", err);
+      return res.status(500).json({ error: "Impossible de déconnecter" });
+    }
+    res.clearCookie("connect.sid", {
+      path: "/",
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+    });
+
+    res.status(200).json({ message: "Déconnecté avec succès" });
+  });
+});
+// Route pour vérifier la session
+router.get("/user/session", (req, res) => {
+  if (req.session.isAuthenticated) {
+    res.json({
+      isAuthenticated: true,
+      user: req.session.user,
+    });
+  } else {
+    res.json({ isAuthenticated: false });
+  }
+});
+
 export default router;

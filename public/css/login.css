@@ -17,12 +17,19 @@
   --theme-shadow-light: rgba(0, 0, 0, 0.1);
   --theme-shadow-dark: rgba(139, 69, 19, 0.3);
 }
+
+/* --- AMÉLIORÉ: Conteneur principal avec transition fluide --- */
 .login {
   width: 90%;
   max-width: 900px;
   margin: 2rem auto;
+  position: relative;
+  overflow: hidden;
+  /* Transition douce pour la hauteur avec courbe de Bézier personnalisée */
+  transition: height 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
+/* --- AMÉLIORÉ: Panneaux avec effets multiples --- */
 .login-connexion,
 .login-register {
   display: flex;
@@ -31,14 +38,33 @@
   border-radius: 20px;
   overflow: hidden;
   box-shadow: 0 15px 30px var(--theme-shadow-light);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  
+  /* Transitions combinées pour un effet sophistiqué */
+  transition: 
+    transform 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+    opacity 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+    filter 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+    box-shadow 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  
+  /* Améliore les performances de l'animation */
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  -webkit-font-smoothing: antialiased;
 }
 
+/* --- SUPPRIMÉ ---
+(Ces règles sont maintenant gérées par JS et les classes ci-dessous)
 .login-register{
   display: flex;
 }
 .login-connexion{
   display: none;
 }
+*/
 
 .infos-login,
 .infos-register {
@@ -139,6 +165,7 @@ label.input-with-icon {
   display: block;
 }
 
+/* --- AMÉLIORÉ: Inputs avec micro-interactions --- */
 form input,
 form select {
   width: 100%;
@@ -148,25 +175,31 @@ form select {
   border-radius: 0.75rem;
   font-size: 1rem;
   font-family: "Ysabeau Infant", sans-serif;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   box-sizing: border-box;
   color: var(--theme-text-dark);
 }
+
 .select-item {
   background-color: var(--theme-input-bg);
   border: 2px solid var(--theme-input-border);
 }
+
 form input:hover {
   border-color: var(--theme-primary);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(139, 69, 19, 0.1);
 }
+
 form input:focus {
   border-color: var(--theme-primary);
   background-color: #fff;
-  transform: scale(1.01);
+  transform: translateY(-2px) scale(1.01);
   outline: none;
-  box-shadow: 0 0 0 3px var(--theme-hover-bg);
+  box-shadow: 0 0 0 4px var(--theme-hover-bg), 0 8px 16px rgba(139, 69, 19, 0.15);
 }
 
+/* --- AMÉLIORÉ: Icônes avec animations subtiles --- */
 .fa-user,
 .fa-lock,
 .fa-envelope {
@@ -176,12 +209,24 @@ form input:focus {
   transform: translateY(-50%);
   color: var(--theme-primary);
   font-size: 0.9rem;
-  transition: color 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
+
+/* Animation des icônes au focus de l'input */
+form input:focus + .fa-user,
+form input:focus ~ .fa-user,
+label:focus-within .fa-user,
+label:focus-within .fa-lock,
+label:focus-within .fa-envelope {
+  color: var(--theme-secondary);
+  transform: translateY(-50%) scale(1.1);
+}
+
 .password-field input {
   padding-right: 3.5rem;
   padding-left: 2.8rem;
 }
+
 .toggle-password {
   position: absolute;
   top: 50%;
@@ -193,12 +238,17 @@ form input:focus {
   margin: 0;
   cursor: pointer;
   color: var(--theme-primary);
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   z-index: 2;
 }
+
 .toggle-password:hover {
   color: var(--theme-secondary);
-  transform: translateY(-50%) scale(1.1);
+  transform: translateY(-50%) scale(1.2) rotate(5deg);
+}
+
+.toggle-password:active {
+  transform: translateY(-50%) scale(0.9);
 }
 
 .toggle-arrow {
@@ -260,6 +310,7 @@ label.remember input {
   text-decoration: underline;
 }
 
+/* --- AMÉLIORÉ: Bouton submit avec animation sophistiquée --- */
 button[type="submit"] {
   padding: 1rem 1.5rem;
   background: var(--theme-gradient);
@@ -270,17 +321,44 @@ button[type="submit"] {
   font-weight: 600;
   font-family: "Ysabeau Infant", sans-serif;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   margin-top: 0.5rem;
   position: relative;
   overflow: hidden;
 }
-button[type="submit"]:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 25px var(--theme-shadow-dark);
+
+button[type="submit"]::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s ease, height 0.6s ease;
 }
+
+button[type="submit"]:hover::before {
+  width: 300px;
+  height: 300px;
+}
+
+button[type="submit"]:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 15px 35px var(--theme-shadow-dark);
+}
+
 button[type="submit"]:active {
-  transform: translateY(0);
+  transform: translateY(-1px) scale(0.98);
+  box-shadow: 0 8px 20px var(--theme-shadow-dark);
+}
+
+button[type="submit"]:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
 }
 
 .sing {
@@ -299,31 +377,230 @@ button[type="submit"]:active {
   color: var(--theme-text-dark);
   font-weight: 500;
 }
+/* --- AMÉLIORÉ: Réseaux sociaux avec animations --- */
 .reseaux-sociaux {
   display: flex;
   justify-content: center;
   gap: 1.5rem;
 }
+
 .reseaux-sociaux a {
   color: var(--theme-primary);
   font-size: 1.5rem;
   padding: 0.5rem;
   border-radius: 50%;
-  transition: all 0.3s ease;
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   text-decoration: none;
-}
-.reseaux-sociaux a:hover {
-  color: var(--theme-secondary);
-  background-color: var(--theme-hover-bg);
-  transform: scale(1.1);
+  position: relative;
 }
 
+.reseaux-sociaux a::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: var(--theme-hover-bg);
+  transform: translate(-50%, -50%) scale(0);
+  transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  z-index: -1;
+}
+
+.reseaux-sociaux a:hover::before {
+  transform: translate(-50%, -50%) scale(1.5);
+}
+
+.reseaux-sociaux a:hover {
+  color: var(--theme-secondary);
+  transform: translateY(-5px) rotate(10deg) scale(1.2);
+}
+
+.reseaux-sociaux a:active {
+  transform: translateY(-2px) scale(1.1);
+}
+
+/* --- AMÉLIORÉ: Messages d'erreur avec transition fluide --- */
 #login-error-message,
 #register-error-message {
-  color: #d9534f;
   text-align: center;
   font-size: 0.9rem;
   min-height: 1.2em;
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  opacity: 0;
+  transform: translateY(-10px);
+  font-weight: 500;
+}
+
+#login-error-message:not(:empty),
+#register-error-message:not(:empty) {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* --- AMÉLIORÉ: Classes pour les messages --- */
+.error-message {
+  color: #e63946;
+  animation: shakeError 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.success-message {
+  color: #06d6a0;
+  animation: bounceSuccess 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+@keyframes shakeError {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+  20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+@keyframes bounceSuccess {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+/* --- AMÉLIORÉ: Classes d'état pour les transitions --- */
+
+/* Panneau actif - visible avec effet de profondeur */
+.panel-active {
+  transform: translateX(0) scale(1);
+  opacity: 1;
+  pointer-events: auto;
+  filter: blur(0px) brightness(1);
+  z-index: 2;
+}
+
+/* Panneau caché vers la gauche - avec effet de zoom et flou */
+.panel-hidden-left {
+  transform: translateX(-100%) scale(0.95);
+  opacity: 0;
+  pointer-events: none;
+  filter: blur(5px) brightness(0.9);
+  z-index: 1;
+}
+
+/* Panneau caché vers la droite - avec effet de zoom et flou */
+.panel-hidden-right {
+  transform: translateX(100%) scale(0.95);
+  opacity: 0;
+  pointer-events: none;
+  filter: blur(5px) brightness(0.9);
+  z-index: 1;
+}
+
+/* --- NOUVEAU: Animation des éléments internes lors de la transition --- */
+.panel-active .connexion,
+.panel-active .register,
+.panel-active .infos-login,
+.panel-active .infos-register {
+  animation: fadeInUp 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.2s both;
+}
+
+.panel-active .title {
+  animation: fadeInScale 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.3s both;
+}
+
+.panel-active .subtitle {
+  animation: fadeInUp 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.4s both;
+}
+
+.panel-active form .user label:nth-child(1) {
+  animation: fadeInRight 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.5s both;
+}
+
+.panel-active form .user label:nth-child(2) {
+  animation: fadeInRight 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.6s both;
+}
+
+.panel-active form .user label:nth-child(3) {
+  animation: fadeInRight 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.7s both;
+}
+
+.panel-active form .user label:nth-child(4) {
+  animation: fadeInRight 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.8s both;
+}
+
+.panel-active form .user label:nth-child(5) {
+  animation: fadeInRight 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.9s both;
+}
+
+.panel-active form select {
+  animation: fadeInRight 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) 1s both;
+}
+
+.panel-active button[type="submit"] {
+  animation: fadeInScale 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) 1.1s both;
+}
+
+/* --- NOUVEAU: Animations keyframes --- */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInRight {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* --- AMÉLIORÉ: Animation des boutons de bascule --- */
+.infos-login a,
+.infos-register a {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.infos-login a::before,
+.infos-register a::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.4);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), 
+              height 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.infos-login a:hover::before,
+.infos-register a:hover::before {
+  width: 400px;
+  height: 400px;
+}
+
+.infos-login a:hover,
+.infos-register a:hover {
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
 }
 
 @media (min-width: 60rem) {
@@ -339,7 +616,7 @@ button[type="submit"]:active {
 
   .infos-login,
   .infos-register {
-    min-height: auto;
+    min-height: unset;
   }
 
   .login-register .register {

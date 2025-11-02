@@ -68,30 +68,6 @@ async function main() {
     ];
     await prisma.etatCommande.createMany({ data: etatsDeCommande });
     console.log("✅ 5 États de Commande créés (ID 1 à 5).");
-
-    // 3. Insertion de l'Utilisateur de Test
-    console.log("\n👤 Insertion de l'Utilisateur de Test (ID 1)...");
-
-    // IMPORTANT : Vous DEVEZ remplir tous les champs NON-OPTIONNELS de votre modèle 'utilisateur' ici.
-    const utilisateurTest = await prisma.utilisateur.create({
-      data: {
-        nom: "SOP TIAM",
-        prenom: "KEVIN ROSTAND",
-        courriel: "exemple@gmail.com",
-        mot_de_passe: "azerty",
-        
-        // Relation corrigée:
-        type_utilisateur: {
-          connect: {
-            id_type_utilisateur: 1, // Connecte au Type 'Client' (qui est l'ID 1)
-          },
-        },
-      },
-    });
-    console.log(
-      `✅ Utilisateur de test créé (ID: ${utilisateurTest.id_utilisateur}).`
-    );
-
     // =======================================================
     // II. INSERTION DES PLATS (Produits)
     // =======================================================

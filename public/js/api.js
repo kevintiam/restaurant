@@ -1,3 +1,5 @@
+
+
 // fonction pour ajouter un article au panier.
 const addPanier = async (id_produit, quantite) => {
   try {
@@ -13,6 +15,11 @@ const addPanier = async (id_produit, quantite) => {
     });
     if (!response.ok) {
       const errorData = await response.json();
+      // Redirection si non authentifié
+      if (response.status === 401 && errorData.redirectUrl) {
+        window.location.href = errorData.redirectUrl;
+        return;
+      }
       throw new Error(errorData.message || `Erreur HTTP: ${response.status}`);
     }
     const data = await response.json();
@@ -128,11 +135,18 @@ const validerCommande = async (
       },
       body: JSON.stringify(data),
     });
-    const commande = await response.json();
+    
     if (!response.ok) {
       const errorData = await response.json();
+      // Redirection si non authentifié
+      if (response.status === 401 && errorData.redirectUrl) {
+        window.location.href = errorData.redirectUrl;
+        return;
+      }
       throw new Error(errorData.message || `Erreur HTTP: ${response.status}`);
     }
+    
+    const commande = await response.json();
     console.log(commande);
     return commande;
   } catch (error) {
@@ -167,7 +181,7 @@ const creerACount = async (name, subname, passwd, categorie, email) => {
     prenom: subname,
     mot_de_passe: passwd,
     courriel: email,
-    id_type_utilisateur: categorie,
+    id_type_utilisateur: parseInt(categorie), // Convertir en nombre
   };
   try {
     const response = await fetch("/user/add", {
@@ -184,7 +198,7 @@ const creerACount = async (name, subname, passwd, categorie, email) => {
     const data = await response.json();
     return data;
   } catch (error) {
-    console.error("Erreur lors de l'ajout au panier:", error.message);
+    console.error( error.message);
     throw error;
   }
 };
@@ -202,15 +216,34 @@ const loginUser = async (courriel, passwd) => {
     });
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.message || `Erreur HTTP: ${response.status}`);
+      throw new Error(errorData.error || errorData.message || `Erreur HTTP: ${response.status}`);
     }
     const data = await response.json();
     return data;
   } catch (error) {
-    console.error("Erreur lors de la connexion de l'utilisateur:", error.message);
+    console.error("Erreur lors de la connexion:", error.message);
     throw error;
   }
 };
+
+//fonction pour se deconnecter
+const logout = async () => {
+  try {
+    const response = await fetch("/user/logout", {
+      method: "POST",
+      credentials: "include",
+    });
+    if (!response.ok) {
+      console.warn("Erreur lors de la déconnexion côté serveur");
+    }
+  } catch (error) {
+    console.error("Erreur réseau lors de la déconnexion :", error);
+  } finally {
+    sessionStorage.clear();
+    window.location.href = "/";
+  }
+};
+
 export {
   addPanier,
   removeToPanier,
@@ -222,4 +255,5 @@ export {
   calculateOrderTotals,
   creerACount,
   loginUser,
+  logout
 };

@@ -48,6 +48,51 @@ header {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
+/* User Menu Styles */
+#user-info {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+}
+
+.user-menu {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.user-name {
+  color: white;
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.btn-logout,
+.btn-login {
+  background-color: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  font-family: inherit;
+}
+
+.btn-logout:hover,
+.btn-login:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.btn-logout:active,
+.btn-login:active {
+  transform: translateY(0);
+}
+
 /* Footer Styles */
 footer {
   background: linear-gradient(135deg, #8b4513 0%, #654321 100%);
@@ -156,7 +201,7 @@ header .container {
   flex-direction: column;
 }
 
-.btn {
+.btn-login {
   padding: 0.75rem;
   border-radius: 25px;
   font-weight: 600;
@@ -257,14 +302,16 @@ header .container {
 @media screen and (min-width: 74rem) {
   header .container {
     gap: 1.5rem;
-    padding: 1rem 20px;
+    padding: 1rem;
     justify-content: space-between;
     align-items: center;
-    max-width: 1200px;
     flex-direction: row;
+    min-width: 100%;
   }
   .main-nav ul {
     flex-direction: row;
+    width: 100%;
+    padding: 1rem 2rem;
   }
   .auth-buttons {
     flex-direction: row;

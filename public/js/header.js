@@ -1,4 +1,9 @@
+import { displayUserInfo } from "./auth.js";
+
 document.addEventListener("DOMContentLoaded", () => {
+  // Afficher les informations utilisateur
+  displayUserInfo();
+  
   const hambuger = document.getElementById("hambuger-menu");
   const menu = document.getElementById("menu-nav");
   const container = document.getElementById("container");

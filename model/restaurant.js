@@ -1,3 +1,5 @@
+import bcrypt from 'bcrypt';
+
 import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
@@ -253,19 +255,19 @@ const getTypeUser = async () => {
   return await prisma.typeUtilisateur.findMany();
 };
 
-const addUser = async (name, subname, passwd, categorie, email) => {
-  if (!name || !subname || !passwd || !categorie || !email) {
+const addUser = async (nom, prenom, mot_de_passe, id_type_utilisateur, courriel) => {
+  if (!nom || !prenom || !mot_de_passe || !id_type_utilisateur || !courriel) {
     throw new Error("Tous les champs sont obligatoires");
   }
-  const hashedPassword = await bcrypt.hash(passwd, 10);
+  const hashedPassword = await bcrypt.hash(mot_de_passe, 10);
   try {
     const newUser = await prisma.utilisateur.create({
       data: {
-        courriel: email,
-        nom: name,
-        prenom: subname,
+        courriel: courriel,
+        nom: nom,
+        prenom: prenom,
         mot_de_passe: hashedPassword,
-        id_type_utilisateur: categorie,
+        id_type_utilisateur: id_type_utilisateur,
       },
     });
     return newUser;
@@ -306,7 +308,7 @@ const connexionUser = async (email) => {
     return null;
   }
   try {
-    const user = await prisma.user.findUnique({
+    const user = await prisma.utilisateur.findUnique({
       where: {
         courriel: email.toLowerCase().trim(),
       },

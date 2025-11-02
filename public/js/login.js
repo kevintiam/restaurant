@@ -1,16 +1,20 @@
 import { creerACount, loginUser } from "./api.js";
-import { isEmailValid, isNomValid } from "./validation.js";
+import { isEmailValid, isNomValid,isValidPassword,isIdValid } from "./validation.js";
+
+const loginContainer = document.getElementById("login-container");
+
+// Panneaux
+const loginConnexion = document.querySelector(".login-connexion");
+const registerConnexion = document.querySelector(".login-register");
 
 // Formulaire de connexion
 const formLogin = document.getElementById("login-form");
 const errorLogin = document.getElementById("login-error-message");
-const loginConnexion = document.querySelector(".login-connexion");
 const loginSubmitButton = formLogin.querySelector('button[type="submit"]');
 
-// Création d'un compte
+// Formulaire de création de compte
 const formRegister = document.getElementById("register-form");
 const errorRegister = document.getElementById("register-error-message");
-const registerConnexion = document.querySelector(".login-register");
 const registerSubmitButton = formRegister.querySelector(
   'button[type="submit"]'
 );
@@ -19,6 +23,7 @@ const registerSubmitButton = formRegister.querySelector(
 const registerBascule = document.getElementById("register-bascule");
 const loginBascule = document.getElementById("login-bascule");
 
+// === Logique de formulaire ===
 const login = async (e) => {
   e.preventDefault();
 
@@ -34,10 +39,14 @@ const login = async (e) => {
   showMessage(errorLogin, "Connexion en cours...", false);
 
   try {
-    const user = await loginUser(email, password);
-    showMessage(errorLogin, "Connexion reussie!.", true);
-
+    const response = await loginUser(email, password);
+    showMessage(errorLogin, "Connexion réussie! Redirection...", true);
     formLogin.reset();
+    
+    // Redirection après un court délai pour que l'utilisateur voie le message
+    setTimeout(() => {
+      window.location.href = response.redirectUrl || "/";
+    }, 1000);
   } catch (error) {
     showMessage(errorLogin, error.message);
   } finally {
@@ -56,7 +65,8 @@ const register = async (e) => {
   const passwordConfirm = document.getElementById(
     "passwd-confirm-register"
   ).value;
-  const categorie = document.getElementById("categorie-select").value;
+
+  const categorie = document.getElementById("fruit-select").value;
 
   //Validation de base
   if (!isNomValid(name) || !isNomValid(prenom) || !isEmailValid(email)) {
@@ -71,15 +81,14 @@ const register = async (e) => {
   }
 
   // Validation de la force du mot de passe
-  const passwordError = validationPasswd(password);
-  if (passwordError) {
-    showMessage(errorRegister, passwordError);
+  if (!isValidPassword(password)) {
+    showMessage(errorRegister, "Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule, un chiffre et un caractère spécial.");
     return;
   }
 
-  // Vérification de la catégorie (si le champ est requis)
-  if (!categorie) {
-    showMessage(errorRegister, "Veuillez sélectionner une catégorie.");
+  // Vérification de la catégorie (ID valide couvre aussi le cas vide)
+  if (!isIdValid(categorie)) {
+    showMessage(errorRegister, "Veuillez sélectionner une catégorie valide.");
     return;
   }
 
@@ -94,6 +103,7 @@ const register = async (e) => {
       true
     );
     formRegister.reset();
+    // Bascule vers le panneau de connexion après succès
     showLoginPanel();
   } catch (error) {
     showMessage(errorRegister, error.message);
@@ -102,33 +112,9 @@ const register = async (e) => {
   }
 };
 
-const validationPasswd = (password) => {
-  if (password.length < 8 || password.length > 128) {
-    return "Le mot de passe doit contenir entre 8 et 128 caractères.";
-  }
-
-  if (!/[a-z]/.test(password)) {
-    return "Le mot de passe doit contenir au moins une lettre minuscule.";
-  }
-
-  if (!/[A-Z]/.test(password)) {
-    return "Le mot de passe doit contenir au moins une lettre majuscule.";
-  }
-
-  if (!/\d/.test(password)) {
-    return "Le mot de passe doit contenir au moins un chiffre.";
-  }
-
-  if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~`]/.test(password)) {
-    return "Le mot de passe doit contenir au moins un caractère spécial.";
-  }
-
-  return null;
-};
 
 const showMessage = (error, message, isSuccess = false) => {
   if (!error) return;
-
   error.textContent = message;
   error.className = isSuccess ? "success-message" : "error-message";
 
@@ -142,29 +128,74 @@ const showMessage = (error, message, isSuccess = false) => {
   }
 };
 
-// fonction pour afficher la page de connexion
+// === NOUVELLE Logique de basculement de panneau ===
+
+/**
+ * Met à jour la hauteur du conteneur principal pour s'adapter au panneau actif.
+ * Utilise une transition fluide avec un léger délai pour un effet naturel.
+ * @param {HTMLElement} activePanel - Le panneau qui est ou devient actif.
+ */
+const updateContainerHeight = (activePanel) => {
+  if (loginContainer && activePanel) {
+    // Ajoute un léger délai pour synchroniser avec l'animation du panneau
+    requestAnimationFrame(() => {
+      const newHeight = activePanel.offsetHeight;
+      loginContainer.style.height = `${newHeight}px`;
+    });
+  }
+};
+
+/**
+ * Affiche le panneau de connexion avec animations fluides
+ */
 const showLoginPanel = (e) => {
-  e.preventDefault();
-  const loginContainer = document.querySelector('.login-connexion');
-  const registerContainer = document.querySelector('.login-register');
+  if (e) e.preventDefault();
+  if (!loginConnexion || !registerConnexion) return;
 
-   if (!loginContainer || !registerContainer) return;
-  if (loginConnexion) loginConnexion.style.display = "flex";
-  if (registerConnexion) registerConnexion.style.display = "none";
+  loginConnexion.classList.remove("panel-hidden-left");
+  
+  registerConnexion.classList.remove("panel-active");
+  registerConnexion.classList.add("panel-hidden-right");
 
+  // Étape 3: Fait entrer le panneau de connexion (légèrement retardé pour un effet cascade)
+  setTimeout(() => {
+    loginConnexion.classList.add("panel-active");
+    updateContainerHeight(loginConnexion);
+  }, 50);
+
+  // Réinitialise les messages d'erreur
   if (errorLogin) errorLogin.textContent = "";
   if (errorRegister) errorRegister.textContent = "";
 };
 
+/**
+ * Affiche le panneau d'inscription avec animations fluides
+ */
 const showRegisterPanel = (e) => {
-  e.preventDefault();
-  if (loginConnexion) loginConnexion.style.display = "none";
-  if (registerConnexion) registerConnexion.style.display = "flex";
+  if (e) e.preventDefault();
+  if (!loginConnexion || !registerConnexion) return;
 
+  // Étape 1: Prépare le panneau d'inscription pour l'entrée
+  registerConnexion.classList.remove("panel-hidden-right");
+  
+  // Étape 2: Fait sortir le panneau de connexion
+  loginConnexion.classList.remove("panel-active");
+  loginConnexion.classList.add("panel-hidden-left");
+
+  // Étape 3: Fait entrer le panneau d'inscription (légèrement retardé pour un effet cascade)
+  setTimeout(() => {
+    registerConnexion.classList.add("panel-active");
+    updateContainerHeight(registerConnexion);
+  }, 50);
+
+  // Réinitialise les messages d'erreur
   if (errorLogin) errorLogin.textContent = "";
   if (errorRegister) errorRegister.textContent = "";
 };
 
+/**
+ * Attache les écouteurs d'événements aux boutons de bascule
+ */
 const bascule = () => {
   if (registerBascule) {
     registerBascule.addEventListener("click", showRegisterPanel);
@@ -174,7 +205,10 @@ const bascule = () => {
   }
 };
 
-document.addEventListener("DOMContentLoaded", async (e) => {
+/**
+ * Initialisation au chargement de la page
+ */
+document.addEventListener("DOMContentLoaded", async () => {
   if (formLogin) {
     formLogin.addEventListener("submit", login);
   }
@@ -183,4 +217,36 @@ document.addEventListener("DOMContentLoaded", async (e) => {
   }
 
   bascule();
+
+  // --- Initialisation de l'état avec transition d'entrée ---
+  // Par défaut, affiche le panneau d'inscription
+  if (loginConnexion && registerConnexion) {
+    // Cache le panneau de connexion
+    loginConnexion.classList.add("panel-hidden-left");
+    
+    registerConnexion.classList.remove("panel-hidden-right");
+    
+    setTimeout(() => {
+      registerConnexion.classList.add("panel-active");
+      
+      // Définit la hauteur initiale après que le contenu soit rendu
+      requestAnimationFrame(() => {
+        if (loginContainer) {
+          loginContainer.style.height = `${registerConnexion.offsetHeight}px`;
+        }
+      });
+    }, 100);
+  }
+
+  // Met à jour la hauteur si la fenêtre est redimensionnée
+  let resizeTimer;
+  window.addEventListener("resize", () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      const activePanel = document.querySelector(".panel-active");
+      if (activePanel) {
+        updateContainerHeight(activePanel);
+      }
+    }, 150); // Debounce pour améliorer les performances
+  });
 });

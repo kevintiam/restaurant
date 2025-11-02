@@ -141,7 +141,7 @@ const validerCommande = async (
   }
 };
 
-// fonction pour le calcul 
+// fonction pour le calcul
 const calculateOrderTotals = async (itemsPourRecu, TAXE, TRANSPORT_RATE) => {
   const sousTotal = itemsPourRecu.reduce((somme, item) => {
     const itemPrice = item.quantite * item.prix;
@@ -159,6 +159,58 @@ const calculateOrderTotals = async (itemsPourRecu, TAXE, TRANSPORT_RATE) => {
     totalFinal: totalFinal.toFixed(2),
   };
 };
+
+// fonction pour ajouter un nouvel utilisateur (creer)
+const creerACount = async (name, subname, passwd, categorie, email) => {
+  const newUser = {
+    nom: name,
+    prenom: subname,
+    mot_de_passe: passwd,
+    courriel: email,
+    id_type_utilisateur: categorie,
+  };
+  try {
+    const response = await fetch("/user/add", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(newUser),
+    });
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || `Erreur HTTP: ${response.status}`);
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Erreur lors de l'ajout au panier:", error.message);
+    throw error;
+  }
+};
+
+// fonction pour se connecter
+const loginUser = async (courriel, passwd) => {
+  const user = { courriel: courriel, mot_de_passe: passwd };
+  try {
+    const response = await fetch("/user/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(user),
+    });
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || `Erreur HTTP: ${response.status}`);
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Erreur lors de la connexion de l'utilisateur:", error.message);
+    throw error;
+  }
+};
 export {
   addPanier,
   removeToPanier,
@@ -168,5 +220,6 @@ export {
   validerCommande,
   getPanierItems,
   calculateOrderTotals,
-  
+  creerACount,
+  loginUser,
 };

@@ -7,7 +7,7 @@
   );
   --theme-primary: #8b4513;
   --theme-secondary: #654321;
-  --theme-light-bg: #fdfbf8; 
+  --theme-light-bg: #fdfbf8;
   --theme-input-bg: #fefaf7;
   --theme-input-border: #e8d5c4;
   --theme-text-dark: #5a3825;
@@ -26,28 +26,29 @@
 .login-connexion,
 .login-register {
   display: flex;
-  flex-direction: column; 
+  flex-direction: column;
   background: var(--theme-text-light);
   border-radius: 20px;
   overflow: hidden;
   box-shadow: 0 15px 30px var(--theme-shadow-light);
-  animation: fadeIn 0.8s ease-out;
 }
 
-.login-register {
-  display: none; /
-}
-.login.show-register .login-connexion {
-  display: none;
-}
-.login.show-register .login-register {
+.login-register{
   display: flex;
+}
+.login-connexion{
+  display: none;
 }
 
 .infos-login,
 .infos-register {
   flex: 1;
-  background: linear-gradient(135deg, rgba(139, 69, 19, 0.85) 0%, rgba(101, 67, 33, 0.85) 100%),url("/images/fond.jpeg")  center/cover; 
+  background: linear-gradient(
+      135deg,
+      rgba(139, 69, 19, 0.85) 0%,
+      rgba(101, 67, 33, 0.85) 100%
+    ),
+    url("/images/fond.jpeg") center/cover;
   color: var(--theme-text-light);
   padding: 50px 40px;
   display: flex;
@@ -55,7 +56,7 @@
   justify-content: center;
   align-items: center;
   text-align: center;
-  min-height: 300px; 
+  min-height: 300px;
 }
 .infos-login h1,
 .infos-register h1 {
@@ -138,7 +139,8 @@ label.input-with-icon {
   display: block;
 }
 
-form input {
+form input,
+form select {
   width: 100%;
   padding: 1.2rem 1.2rem 1.2rem 2.8rem;
   background-color: var(--theme-input-bg);
@@ -150,7 +152,10 @@ form input {
   box-sizing: border-box;
   color: var(--theme-text-dark);
 }
-
+.select-item {
+  background-color: var(--theme-input-bg);
+  border: 2px solid var(--theme-input-border);
+}
 form input:hover {
   border-color: var(--theme-primary);
 }
@@ -166,7 +171,7 @@ form input:focus {
 .fa-lock,
 .fa-envelope {
   position: absolute;
-  top: 50%; 
+  top: 50%;
   left: 1rem;
   transform: translateY(-50%);
   color: var(--theme-primary);
@@ -179,7 +184,7 @@ form input:focus {
 }
 .toggle-password {
   position: absolute;
-  top: 50%; 
+  top: 50%;
   right: 1rem;
   transform: translateY(-50%);
   background: transparent;
@@ -318,36 +323,35 @@ button[type="submit"]:active {
   color: #d9534f;
   text-align: center;
   font-size: 0.9rem;
-  min-height: 1.2em; 
-
+  min-height: 1.2em;
 }
 
 @media (min-width: 60rem) {
   .login-connexion,
   .login-register {
-    flex-direction: row; 
+    flex-direction: row;
   }
 
   .connexion,
   .register {
-    padding: 50px 60px; 
+    padding: 50px 60px;
   }
 
   .infos-login,
   .infos-register {
-    min-height: auto; 
+    min-height: auto;
   }
 
   .login-register .register {
-    order: 1; 
+    order: 1;
   }
   .login-register .infos-register {
-    order: 2; 
+    order: 2;
   }
   .toggle-arrow {
     display: none;
   }
-  form input{
+  form input {
     font-size: 1.1rem;
   }
 }

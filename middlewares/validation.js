@@ -108,4 +108,11 @@ const validerID = (req, res, next) => {
   next();
 };
 
-export { validerInfosClient, validerArticle, validerUpdate, validerID };
+const requireAuth = (req, res, next) => {
+  if (!req.session.userId) {
+    return res.status(401).json({ error: "Non autorisé" });
+  }
+  req.user = { id: req.session.userId };
+  next();
+};
+export { requireAuth ,validerInfosClient, validerArticle, validerUpdate, validerID };

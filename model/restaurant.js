@@ -91,7 +91,7 @@ const passerCommande = async (
   if (panierTemporaire.length === 0) {
     throw new Error("Impossible de soumettre : le panier est vide.");
   }
-  
+
   const adresseComplete = [
     `CLIENT: ${nom_complet}`,
     `TÉL: ${telephone}`,
@@ -104,7 +104,7 @@ const passerCommande = async (
   try {
     const nouvelleCommande = await prisma.$transaction(async (tx) => {
       //Création de l'ID formaté (CM-timestamp)
-      const uniqueSuffix = Date.now(); 
+      const uniqueSuffix = Date.now();
       const formattedId = `CM-${uniqueSuffix}`;
       const commande = await tx.commande.create({
         data: {
@@ -128,7 +128,6 @@ const passerCommande = async (
       return commande;
     });
     return nouvelleCommande;
-    
   } catch (error) {
     console.error("Erreur Prisma lors de la transaction de commande :", error);
     throw new Error("Échec de la création de la commande.");
@@ -250,6 +249,74 @@ const calculateOrderTotals = async (itemsPourRecu, TAXE, TRANSPORT_RATE) => {
   };
 };
 
+const getTypeUser = async () => {
+  return await prisma.typeUtilisateur.findMany();
+};
+
+const addUser = async (name, subname, passwd, categorie, email) => {
+  if (!name || !subname || !passwd || !categorie || !email) {
+    throw new Error("Tous les champs sont obligatoires");
+  }
+  const hashedPassword = await bcrypt.hash(passwd, 10);
+  try {
+    const newUser = await prisma.utilisateur.create({
+      data: {
+        courriel: email,
+        nom: name,
+        prenom: subname,
+        mot_de_passe: hashedPassword,
+        id_type_utilisateur: categorie,
+      },
+    });
+    return newUser;
+  } catch (error) {
+    if (error.code === "P2002") {
+      throw new Error("Cet email est déjà utilisé.");
+    }
+    throw new Error("Erreur lors de la création de l’utilisateur.");
+  }
+};
+
+const validationPasswd = (password) => {
+  if (password.length < 8 || password.length > 128) {
+    return "Le mot de passe doit contenir entre 8 et 128 caractères.";
+  }
+
+  if (!/[a-z]/.test(password)) {
+    return "Le mot de passe doit contenir au moins une lettre minuscule.";
+  }
+
+  if (!/[A-Z]/.test(password)) {
+    return "Le mot de passe doit contenir au moins une lettre majuscule.";
+  }
+
+  if (!/\d/.test(password)) {
+    return "Le mot de passe doit contenir au moins un chiffre.";
+  }
+
+  if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~`]/.test(password)) {
+    return "Le mot de passe doit contenir au moins un caractère spécial.";
+  }
+
+  return null;
+};
+
+const connexionUser = async (email) => {
+  if (!email) {
+    return null;
+  }
+  try {
+    const user = await prisma.user.findUnique({
+      where: {
+        courriel: email.toLowerCase().trim(),
+      },
+    });
+    return user;
+  } catch (error) {
+    throw new Error("Erreur lors de la récupération de l'utilisateur");
+  }
+};
+
 export {
   getAllProducts,
   addToPanier,
@@ -263,4 +330,8 @@ export {
   updatePanierQuantity,
   getTotalItems,
   calculateOrderTotals,
+  getTypeUser,
+  addUser,
+  validationPasswd,
+  connexionUser,
 };

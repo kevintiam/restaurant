@@ -11,6 +11,9 @@ import {
   updatePanierQuantity,
   getTotalItems,
   calculateOrderTotals,
+  getTypeUser,
+  addUser,
+  connexionUser,
 } from "./model/restaurant.js";
 import {
   validerInfosClient,
@@ -92,15 +95,16 @@ router.get("/login", async (req, res) => {
         "./css/about.css",
         "./css/panier.css",
         "./css/recu.css",
-        "./css/login.css"
+        "./css/login.css",
       ],
       scripts: [
         "./js/header.js",
         "./js/menu.js",
         "./js/panier.js",
         "./js/recus.js",
-        "./js/login.js"
+        "./js/login.js",
       ],
+      type: await getTypeUser(),
     });
   } catch (error) {
     res.status(500).send("Erreur lors du chargement du panier.");
@@ -293,5 +297,62 @@ router.put("/commandes/statut/:id_commande", async (req, res) => {
     });
   }
 });
+// route pour ajouter un nouvel utilisateur
+router.post("/user/add", async (req, res) => {
+  try {
+    const { nom, prenom, mot_de_passe, courriel, id_type_utilisateur } =
+      req.body;
 
+    if (!nom || !prenom || !mot_de_passe || !id_type_utilisateur || !courriel) {
+      return res
+        .status(400)
+        .json({ message: "Tous les champs sont obligatoires" });
+    }
+
+    const newUser = await addUser(
+      nom,
+      prenom,
+      mot_de_passe,
+      id_type_utilisateur,
+      courriel
+    );
+
+    res.status(201).json(newUser);
+  } catch (error) {
+    console.error("Erreur lors de l'ajout de l'utilisateur:", error.message);
+    if (error.message.includes("Cet email est déjà utilisé.")) {
+      return res.status(409).json({ message: error.message });
+    }
+    if (error.message.includes("Tous les champs sont obligatoires")) {
+      return res.status(400).json({ message: error.message });
+    }
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+});
+//route pour se connecter
+router.post("/user/login", async (req, res) => {
+  const { courriel, mot_de_passe } = req.body;
+  if (!courriel || !mot_de_passe) {
+     return res.status(400).json({ error: "Email et mot de passe requis" });
+  }
+    try {
+    const user = await connexionUser(courriel);
+    if(!user){
+      return res.status(401).json({ error: "Identifiants invalides" });
+    }
+
+    const isMatch = await bcrypt.compare(mot_de_passe, user.mot_de_passe)
+
+    if (!isMatch) {
+      return res.status(401).json({ error: "Identifiants invalides" });
+    }
+    const { password: _, ...safeUser } = user;
+    res.json({ message: "Connexion réussie", user: safeUser });
+  } catch (error) {
+    console.error("Erreur login:", error);
+    res.status(500).json({ error: "Erreur interne du serveur" });
+  }
+});
 export default router;

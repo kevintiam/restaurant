@@ -1,8 +1,8 @@
 <div class="login" id="login-container">
-  <div class="login-connexion">
+  <div class="login-connexion slide-in">
     <div class="infos-login" id="infos-loging">
       <h1>Bonjour !</h1>
-      <p>Vous n’avez pas encore de compte ?<br />Rejoignez-nous !</p>
+      <p>Vous n’avez pas encore de compte ? Rejoignez-nous !</p>
       <a href="#register" id="register-bascule">Creer un compte</a>
     </div>
     <div class="connexion active" id="connexion">
@@ -75,17 +75,9 @@
       </form>
     </div>
   </div>
-  <div class="login-register">
+  <div class="login-register hidden">
 
     <div class="register" id="register">
-      <button
-        type="button"
-        class="toggle-arrow"
-        aria-label="Passer à la connexion"
-        id="toggle-register-back"
-      >
-        <i class="fas fa-arrow-left"></i>
-      </button>
       <p class="title">Inscription</p>
       <p class="subtitle">Créez votre compte dès maintenant</p>
       <form action="" id="register-form">
@@ -95,12 +87,24 @@
             <i class="fas fa-user" aria-hidden="true"></i>
             <input
               type="text"
-              name="user"
+              name="user-name"
               id="user-register"
               required
               placeholder="Nom d'utilisateur"
             />
           </label>
+          <!-- Prenom d'utilisateur -->
+          <label for="subname-register" class="input-with-icon">
+            <i class="fas fa-user" aria-hidden="true"></i>
+            <input
+              type="text"
+              name="user-subname"
+              id="subname-register"
+              required
+              placeholder="Prenom d'utilisateur"
+            />
+          </label>
+          <!-- Email -->
           <label for="email-register" class="input-with-icon">
             <i class="fas fa-envelope" aria-hidden="true"></i>
             <input
@@ -111,6 +115,7 @@
               placeholder="Adresse e-mail"
             />
           </label>
+          <!-- Mot de passe -->
           <label for="passwd-register" class="input-with-icon password-field">
             <i class="fas fa-lock" aria-hidden="true"></i>
             <input
@@ -129,6 +134,7 @@
               <i class="fas fa-eye"></i>
             </button>
           </label>
+          <!-- Confirmation du mot de passe -->
           <label
             for="passwd-confirm-register"
             class="input-with-icon password-field"
@@ -150,6 +156,12 @@
               <i class="fas fa-eye"></i>
             </button>
           </label>
+          <!-- Categorie -->
+          <select name="choix_fruit" id="fruit-select">
+            <option value="">--Veuillez choisir Votre Categorie--</option>
+            <option value="1" class="select-item">Client</option>
+            <option value="3" class="select-item">Livreur</option>
+          </select>
         </div>
         <span id="register-error-message"></span>
         <button type="submit">S’inscrire</button>

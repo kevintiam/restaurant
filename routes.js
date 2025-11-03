@@ -1,6 +1,5 @@
-import bcrypt from "bcrypt";
-
 import { Router } from "express";
+import passport from "passport";
 import {
   getAllProducts,
   addToPanier,
@@ -15,7 +14,6 @@ import {
   calculateOrderTotals,
   getTypeUser,
   addUser,
-  connexionUser,
 } from "./model/restaurant.js";
 import {
   validerInfosClient,
@@ -24,8 +22,8 @@ import {
   validerID,
   validerInfosUtilisateur,
   validerLogin,
-  requireAuth,
 } from "./middlewares/validation.js";
+import { userAuth, userAuthRedirect} from "./middlewares/auth.js";
 import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
@@ -33,38 +31,44 @@ const router = Router();
 
 // Définition des routes
 // route pour recuperer tous les produits
-router.get("/all-products", async (req, res) => {
+router.get("/all-products", async (req, res, next) => {
   try {
     const products = await getAllProducts();
     res.status(200).json(products);
     console.log(products);
   } catch (error) {
     console.error("❌ Erreur dans /allProducts :", error);
-    res.status(500).json({ error: error.message });
+    next(error);
   }
 });
 // route pour la page d'accueil
-router.get("/", async (req, res) => {
-  res.render("home", {
-    title: "Menu",
-    styles: [
-      "./css/header.css",
-      "./css/menu.css",
-      "./css/home.css",
-      "./css/about.css",
-      "./css/panier.css",
-    ],
-    scripts: [
-      "./js/header.js",
-      "./js/menu.js",
-      "./js/panier.js",
-      "./js/recus.js",
-    ],
-    products: await getAllProducts(),
-  });
+router.get("/", async (req, res, next) => {
+  try {
+    res.render("home", {
+      title: "Menu",
+      styles: [
+        "./css/header.css",
+        "./css/menu.css",
+        "./css/home.css",
+        "./css/about.css",
+        "./css/panier.css",
+      ],
+      scripts: [
+        "./js/header.js",
+        "./js/menu.js",
+        "./js/panier.js",
+        "./js/recus.js",
+      ],
+      products: await getAllProducts(),
+      user: req.user,
+      isAdmin: req.user && req.user.id_type_utilisateur === 2,
+    });
+  } catch (error) {
+    next(error);
+  }
 });
 //route pour voir les articles dans le panier
-router.get("/panier", async (req, res) => {
+router.get("/panier", userAuth, async (req, res, next) => {
   try {
     res.render("panier", {
       title: "Panier",
@@ -83,13 +87,15 @@ router.get("/panier", async (req, res) => {
         "./js/recus.js",
       ],
       donneesPanier: await getContenuPanier(),
+      user: req.user,
+      isAdmin: req.user && req.user.id_type_utilisateur === 2,
     });
   } catch (error) {
-    res.status(500).send("Erreur lors du chargement du panier.");
+    next(error);
   }
 });
-//route pour se connecter
-router.get("/login", async (req, res) => {
+//route pour acceder a la page de login pour se connecter
+router.get("/login", async (req, res, next) => {
   try {
     res.render("login", {
       title: "Login",
@@ -110,17 +116,19 @@ router.get("/login", async (req, res) => {
         "./js/login.js",
       ],
       type: await getTypeUser(),
+      user: req.user,
+      isAdmin: req.user && req.user.id_type_utilisateur === 2,
     });
   } catch (error) {
-    res.status(500).send("Erreur lors du chargement du panier.");
+    next(error);
   }
 });
 // route pour ajouter un article au panier
 router.post(
   "/panier/ajouter",
-  requireAuth,
+  userAuth,
   validerArticle,
-  async (req, res) => {
+  async (req, res, next) => {
     try {
       const { id_produit, quantite } = req.body;
       const produit = await addToPanier(id_produit, quantite);
@@ -130,17 +138,15 @@ router.post(
       });
     } catch (error) {
       console.error("Erreur lors de l'ajout au panier :", error.message);
-      res.status(500).json({
-        message: "Erreur lors de l'ajout au panier : " + error.message,
-      });
+      next(error);
     }
   }
 );
 router.put(
   "/panier/update/:id",
-  requireAuth,
+  userAuth,
   validerUpdate,
-  async (req, res) => {
+  async (req, res, next) => {
     try {
       const id = req.params.id;
       const { quantite } = req.body;
@@ -155,18 +161,16 @@ router.put(
         "Erreur lors de la mise à jour de la quantité:",
         error.message
       );
-      res.status(400).json({
-        message: error.message,
-      });
+      next(error);
     }
   }
 );
-// Route pour supprimer un article ou vider le panier (POST)
+// Route pour supprimer un article ou vider le panier
 router.delete(
   "/panier/supprimer/:id",
-  requireAuth,
+  userAuth,
   validerID,
-  async (req, res) => {
+  async (req, res, next) => {
     try {
       const id = parseInt(req.params.id);
       const articleSupprime = await removeToPanier(id);
@@ -181,24 +185,22 @@ router.delete(
       }
     } catch (error) {
       console.error("Erreur de suppression:", error.message);
-      res.status(500).json({
-        message: error.message || "Erreur lors de la suppression de l'article.",
-      });
+      next(error);
     }
   }
 );
 // route pour recuperer le nombre total d'element
-router.get("/panier/total-items", async (req, res) => {
+router.get("/panier/total-items", async (req, res, next) => {
   try {
     const totalItems = await getTotalItems();
     res.status(200).json({ totalItems: totalItems });
   } catch (error) {
     console.error("Erreur calcul total items:", error);
-    res.status(500).json({ message: "Erreur serveur" });
+    next(error);
   }
 });
 // route pour vider le panier
-router.delete("/panier/vider", requireAuth, async (req, res) => {
+router.delete("/panier/vider", userAuth, async (req, res, next) => {
   try {
     const message = await viderPanier();
     res.status(200).json({
@@ -206,27 +208,25 @@ router.delete("/panier/vider", requireAuth, async (req, res) => {
     });
   } catch (error) {
     console.error("Erreur lors du vidage du panier:", error.message);
-    res.status(500).json({
-      message: error.message || "Erreur lors du vidage du panier.",
-    });
+    next(error);
   }
 });
 // router pour recuperer tous les articles du panier
-router.get("/panier/all", async (req, res) => {
+router.get("/panier/all", userAuth, async (req, res, next) => {
   try {
     const panier = await getContenuPanier();
     res.status(200).json(panier);
   } catch (error) {
     console.error("Erreur calcul total items:", error);
-    res.status(500).json({ message: "Erreur serveur" });
+    next(error);
   }
 });
 // Route pour soumettre la commande
 router.post(
   "/commande/soumettre",
-  requireAuth,
+  userAuth,
   validerInfosClient,
-  async (req, res) => {
+  async (req, res, next) => {
     try {
       const { adresse_livraison, nom_complet, telephone, courriel } = req.body;
 
@@ -279,14 +279,12 @@ router.post(
         "Erreur lors de la soumission de la commande:",
         error.message
       );
-      res.status(500).json({
-        message: error.message,
-      });
+      next(error);
     }
   }
 );
 // route pour les commandes
-router.get("/commandes", async (req, res) => {
+router.get("/commandes", async (req, res, next) => {
   try {
     const etatsPossibles = await prisma.etatCommande.findMany();
     res.render("commandes", {
@@ -295,13 +293,15 @@ router.get("/commandes", async (req, res) => {
       scripts: ["./js/header.js"],
       commandes: await allCommande(),
       etats: etatsPossibles,
+      user: req.user,
+      isAdmin: req.user && req.user.id_type_utilisateur === 2,
     });
   } catch (error) {
-    res.status(500).send("Erreur lors du chargement des commandes.");
+    next(error);
   }
 });
 // Route pour modifier le statut d'une commande
-router.put("/commandes/statut/:id_commande", async (req, res) => {
+router.put("/commandes/statut/:id_commande", userAuth, async (req, res, next) => {
   try {
     const id_commande = parseInt(req.params.id_commande);
     const { id_etat_commande } = req.body;
@@ -317,25 +317,14 @@ router.put("/commandes/statut/:id_commande", async (req, res) => {
     });
   } catch (error) {
     console.error("Échec de la mise à jour du statut:", error.message);
-    res.status(500).json({
-      message: "Erreur interne du serveur",
-    });
+    next(error);
   }
 });
 // route pour ajouter un nouvel utilisateur
-router.post("/user/add", validerInfosUtilisateur, async (req, res) => {
+router.post("/user/add", validerInfosUtilisateur, async (req, res, next) => {
   try {
     const { nom, prenom, mot_de_passe, courriel, id_type_utilisateur } =
       req.body;
-
-    console.log("Données reçues:", {
-      nom,
-      prenom,
-      courriel,
-      id_type_utilisateur,
-      mdp_length: mot_de_passe?.length,
-    });
-
     const newUser = await addUser(
       nom,
       prenom,
@@ -346,59 +335,50 @@ router.post("/user/add", validerInfosUtilisateur, async (req, res) => {
 
     res.status(201).json(newUser);
   } catch (error) {
-    console.error("Erreur lors de l'ajout de l'utilisateur:", error.message);
-    console.error("Stack trace:", error.stack);
     if (error.message.includes("Cet email est déjà utilisé.")) {
       return res.status(409).json({ message: error.message });
     }
     if (error.message.includes("Tous les champs sont obligatoires")) {
       return res.status(400).json({ message: error.message });
     }
-    res.status(500).json({
-      message: error.message,
-    });
+    next(error);
   }
 });
 //route pour se connecter
-router.post("/user/login", validerLogin, async (req, res) => {
-  const { courriel, mot_de_passe } = req.body;
-  if (!courriel || !mot_de_passe) {
-    return res.status(400).json({ error: "Email et mot de passe requis" });
-  }
-  try {
-    const user = await connexionUser(courriel);
+router.post("/user/login", validerLogin, (req, res, next) => {
+  passport.authenticate("local", (err, user, info) => {
+    if (err) {
+      next(err);
+    }
+
     if (!user) {
-      return res.status(401).json({ error: "Identifiants invalides" });
+      return res.status(401).json({
+        error: info?.message || "Identifiants invalides",
+      });
     }
+    // Connexion de l'utilisateur via Passport
+    req.logIn(user, (err) => {
+      if (err) {
+        next(err);
+      }
+      // Retourner l'utilisateur sans le mot de passe
+      const { mot_de_passe, ...safeUser } = user;
 
-    const isMatch = await bcrypt.compare(mot_de_passe, user.mot_de_passe);
-
-    if (!isMatch) {
-      return res.status(401).json({ error: "Identifiants invalides" });
-    }
-
-    // Créer la session utilisateur
-    const { mot_de_passe: _, ...safeUser } = user;
-    req.session.user = safeUser;
-    req.session.isAuthenticated = true;
-
-    res.json({
-      message: "Connexion réussie",
-      user: safeUser,
-      redirectUrl: "/", // Page d'accueil ou tableau de bord
+      res.json({
+        message: "Connexion réussie",
+        user: safeUser,
+        redirectUrl: "/",
+      });
     });
-  } catch (error) {
-    console.error("Erreur login:", error);
-    res.status(500).json({ error: "Erreur interne du serveur" });
-  }
+  })(req, res, next);
 });
 // Route pour se déconnecter
-router.post("/user/logout", (req, res) => {
-  req.session.destroy((err) => {
+router.post("/user/logout", userAuth, (req, res, next) => {
+  req.logout((err) => {
     if (err) {
-      console.error("Erreur déconnexion:", err);
-      return res.status(500).json({ error: "Impossible de déconnecter" });
+      return next(err);
     }
+
     res.clearCookie("connect.sid", {
       path: "/",
       httpOnly: true,
@@ -406,18 +386,27 @@ router.post("/user/logout", (req, res) => {
       sameSite: "lax",
     });
 
-    res.status(200).json({ message: "Déconnecté avec succès" });
+    res.status(200).json({
+      message: "Déconnecté avec succès",
+      redirectUrl: "/login",
+    });
   });
 });
+
 // Route pour vérifier la session
-router.get("/user/session", (req, res) => {
-  if (req.session.isAuthenticated) {
-    res.json({
-      isAuthenticated: true,
-      user: req.session.user,
-    });
-  } else {
-    res.json({ isAuthenticated: false });
+router.get("/user/session", (req, res, next) => {
+  try {
+    if (req.isAuthenticated()) {
+      const { mot_de_passe, ...safeUser } = req.user;
+      res.json({
+        isAuthenticated: true,
+        user: safeUser,
+      });
+    } else {
+      res.json({ isAuthenticated: false });
+    }
+  } catch (error) {
+    next(error);
   }
 });
 

@@ -1,5 +1,3 @@
-
-
 // fonction pour ajouter un article au panier.
 const addPanier = async (id_produit, quantite) => {
   try {
@@ -135,7 +133,7 @@ const validerCommande = async (
       },
       body: JSON.stringify(data),
     });
-    
+
     if (!response.ok) {
       const errorData = await response.json();
       // Redirection si non authentifié
@@ -145,7 +143,7 @@ const validerCommande = async (
       }
       throw new Error(errorData.message || `Erreur HTTP: ${response.status}`);
     }
-    
+
     const commande = await response.json();
     console.log(commande);
     return commande;
@@ -198,7 +196,7 @@ const creerACount = async (name, subname, passwd, categorie, email) => {
     const data = await response.json();
     return data;
   } catch (error) {
-    console.error( error.message);
+    console.error(error.message);
     throw error;
   }
 };
@@ -216,7 +214,11 @@ const loginUser = async (courriel, passwd) => {
     });
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.error || errorData.message || `Erreur HTTP: ${response.status}`);
+      throw new Error(
+        errorData.error ||
+          errorData.message ||
+          `Erreur HTTP: ${response.status}`
+      );
     }
     const data = await response.json();
     return data;
@@ -244,6 +246,17 @@ const logout = async () => {
   }
 };
 
+//fonction pour verifier si l'utilisateur est connecté
+const checkSession = async () => {
+  try {
+    const response = await fetch("/user/session");
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Erreur lors de la vérification de session:", error);
+    return { isAuthenticated: false };
+  }
+};
 export {
   addPanier,
   removeToPanier,
@@ -255,5 +268,5 @@ export {
   calculateOrderTotals,
   creerACount,
   loginUser,
-  logout
+  logout,
 };

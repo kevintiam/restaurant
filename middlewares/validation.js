@@ -102,23 +102,6 @@ const validerID = (req, res, next) => {
   next();
 };
 
-// Middleware pour vérifier l'authentification
-const requireAuth = (req, res, next) => {
-  if (req.session && req.session.isAuthenticated) {
-    return next();
-  }
-  // Si c'est une requête API, retourner une erreur JSON
-  if (req.xhr || req.headers.accept.indexOf('json') > -1) {
-    return res.status(401).json({ 
-      error: "Non authentifié", 
-      message: "Vous devez être connecté pour accéder à cette ressource",
-      redirectUrl: "/login"
-    });
-  }
-  // Sinon, rediriger vers la page de connexion
-  res.redirect("/login");
-};
-
 // validation des informations utilisateur lors de la création de compte
 const validerInfosUtilisateur = (req, res, next) => {
   const { nom, prenom, mot_de_passe, courriel, id_type_utilisateur } = req.body;
@@ -162,7 +145,6 @@ const validerLogin = (req, res, next) => {
 };
 
 export {
-  requireAuth,
   validerInfosClient,
   validerArticle,
   validerUpdate,

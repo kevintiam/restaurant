@@ -1,8 +1,14 @@
-import { displayUserInfo } from "./auth.js";
+import { logout } from "./api.js";
 
 document.addEventListener("DOMContentLoaded", () => {
-  // Afficher les informations utilisateur
-  displayUserInfo();
+  // Gérer le bouton de déconnexion
+  const logoutBtn = document.getElementById("logout-btn");
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", async (e) => {
+      e.preventDefault();
+      await logout();
+    });
+  }
   
   const hambuger = document.getElementById("hambuger-menu");
   const menu = document.getElementById("menu-nav");

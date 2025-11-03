@@ -1,6 +1,6 @@
 import { validerCommande } from "./api.js";
 import { isEmailValid, isNomValid, isTelephoneValid,isAdresseValid } from "./validation.js";
-import { showMessage } from "./menu.js";
+import { showMessage,updateCartBadge } from "./menu.js";
 
 const orderForm = document.querySelector(".panier-resume form");
 const panierContainer = document.getElementById("panier-container");
@@ -58,6 +58,8 @@ const submitForm = async (e) => {
     if (recu) recu.style.display = "block";
 
     orderForm.reset();
+    panierContainer.innerHTML = "";
+    await updateCartBadge();
   } catch (error) {
     console.error("Erreur de soumission:", error.message);
     showMessage(`Erreur lors de la commande: ${error.message}`, "error");

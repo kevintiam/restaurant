@@ -129,6 +129,10 @@ const passerCommande = async (
       });
       return commande;
     });
+    
+    // Vider le panier après la création de la commande
+    panierTemporaire.length = 0;
+    
     return nouvelleCommande;
   } catch (error) {
     console.error("Erreur Prisma lors de la transaction de commande :", error);
@@ -319,6 +323,20 @@ const connexionUser = async (email) => {
   }
 };
 
+const getUserById = async (id) => {
+  if (!id) {
+    return null;
+  }
+  try {
+    const user = await prisma.utilisateur.findUnique({
+      where: {  id_utilisateur: parseInt(id) },
+    });
+    return user;
+  } catch (error) {
+    throw new Error("Erreur lors de la récupération de l'utilisateur");
+  }
+};
+
 export {
   getAllProducts,
   addToPanier,
@@ -334,6 +352,7 @@ export {
   calculateOrderTotals,
   getTypeUser,
   addUser,
+  getUserById ,
   validationPasswd,
   connexionUser,
 };

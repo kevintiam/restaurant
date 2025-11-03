@@ -28,7 +28,6 @@ const isTelephoneValid = (telephone) => {
     phoneRegex.test(cleanedTelephone)
   );
 };
-
 // validation des adresses
 const isAdresseValid = (adresse) => {
     if (typeof adresse !== "string") return false;
@@ -299,9 +298,7 @@ const masquerNumeroCarte = (numeroCarte) => {
   const derniersChiffres = cleaned.slice(-4);
   return `•••• •••• •••• ${derniersChiffres}`;
 };
-
  // Vérifie si l'ID d'un produit et sa quantité sont valides.
-
 const isArticleValid = (id_produit, quantite) => {
   // --- 1. Validation de l'ID du Produit ---
   const id = Number(id_produit);
@@ -325,13 +322,11 @@ const isArticleValid = (id_produit, quantite) => {
 
   return true;
 };
-
 // Fonction pour vérifier si une valeur est un ID valide
 const isIdValid = (id) => {
   const numId = Number(id);
   return Number.isInteger(numId) && numId > 0;
 };
-
 const isValidQuantity = (quantite) => {
   const numId = Number(quantite);
   return (
@@ -339,7 +334,6 @@ const isValidQuantity = (quantite) => {
     numId >= 1 && 
     numId < 100);
 };
-
 const isValidPassword = (password) => {
   if (typeof password !== "string") return false;
   if( password.length < 8 || password.length > 128) {

@@ -1,5 +1,10 @@
 import { creerACount, loginUser } from "./api.js";
-import { isEmailValid, isNomValid,isValidPassword,isIdValid } from "./validation.js";
+import {
+  isEmailValid,
+  isNomValid,
+  isValidPassword,
+  isIdValid,
+} from "./validation.js";
 
 const loginContainer = document.getElementById("login-container");
 
@@ -23,10 +28,11 @@ const registerSubmitButton = formRegister.querySelector(
 const registerBascule = document.getElementById("register-bascule");
 const loginBascule = document.getElementById("login-bascule");
 
+
+
 // === Logique de formulaire ===
 const login = async (e) => {
   e.preventDefault();
-
   const email = document.getElementById("user-login").value;
   const password = document.getElementById("passwd-login").value;
 
@@ -42,7 +48,7 @@ const login = async (e) => {
     const response = await loginUser(email, password);
     showMessage(errorLogin, "Connexion réussie! Redirection...", true);
     formLogin.reset();
-    
+
     // Redirection après un court délai pour que l'utilisateur voie le message
     setTimeout(() => {
       window.location.href = response.redirectUrl || "/";
@@ -82,7 +88,10 @@ const register = async (e) => {
 
   // Validation de la force du mot de passe
   if (!isValidPassword(password)) {
-    showMessage(errorRegister, "Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule, un chiffre et un caractère spécial.");
+    showMessage(
+      errorRegister,
+      "Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule, un chiffre et un caractère spécial."
+    );
     return;
   }
 
@@ -112,7 +121,6 @@ const register = async (e) => {
   }
 };
 
-
 const showMessage = (error, message, isSuccess = false) => {
   if (!error) return;
   error.textContent = message;
@@ -129,12 +137,6 @@ const showMessage = (error, message, isSuccess = false) => {
 };
 
 // === NOUVELLE Logique de basculement de panneau ===
-
-/**
- * Met à jour la hauteur du conteneur principal pour s'adapter au panneau actif.
- * Utilise une transition fluide avec un léger délai pour un effet naturel.
- * @param {HTMLElement} activePanel - Le panneau qui est ou devient actif.
- */
 const updateContainerHeight = (activePanel) => {
   if (loginContainer && activePanel) {
     // Ajoute un léger délai pour synchroniser avec l'animation du panneau
@@ -145,15 +147,12 @@ const updateContainerHeight = (activePanel) => {
   }
 };
 
-/**
- * Affiche le panneau de connexion avec animations fluides
- */
 const showLoginPanel = (e) => {
   if (e) e.preventDefault();
   if (!loginConnexion || !registerConnexion) return;
 
   loginConnexion.classList.remove("panel-hidden-left");
-  
+
   registerConnexion.classList.remove("panel-active");
   registerConnexion.classList.add("panel-hidden-right");
 
@@ -177,7 +176,7 @@ const showRegisterPanel = (e) => {
 
   // Étape 1: Prépare le panneau d'inscription pour l'entrée
   registerConnexion.classList.remove("panel-hidden-right");
-  
+
   // Étape 2: Fait sortir le panneau de connexion
   loginConnexion.classList.remove("panel-active");
   loginConnexion.classList.add("panel-hidden-left");
@@ -205,6 +204,27 @@ const bascule = () => {
   }
 };
 
+const visiblePassword = (toggleButton, passwordInput) => {
+  if (!toggleButton || !passwordInput) return;
+  
+  // Éviter les event listeners en double
+  if (toggleButton.dataset.initialized === "true") return;
+  
+  let isVisible = false;
+  const eyeIcon = toggleButton.querySelector("i");
+
+  toggleButton.addEventListener("click", () => {
+    isVisible = !isVisible;
+    passwordInput.type = isVisible ? "text" : "password";
+    if (eyeIcon) {
+      eyeIcon.classList.toggle("fa-eye", !isVisible);
+      eyeIcon.classList.toggle("fa-eye-slash", isVisible);
+    }
+    passwordInput.focus();
+  });
+
+  toggleButton.dataset.initialized = "true";
+};
 /**
  * Initialisation au chargement de la page
  */
@@ -216,6 +236,19 @@ document.addEventListener("DOMContentLoaded", async () => {
     formRegister.addEventListener("submit", register);
   }
 
+  // Initialiser les boutons de visibilité des mots de passe
+  const toggleLoginPassword = document.getElementById("toggle-password-login");
+  const loginPasswordInput = document.getElementById("passwd-login");
+  visiblePassword(toggleLoginPassword, loginPasswordInput);
+
+  const toggleRegisterPassword = document.getElementById("toggle-password-register");
+  const registerPasswordInput = document.getElementById("passwd-register");
+  visiblePassword(toggleRegisterPassword, registerPasswordInput);
+
+  const toggleConfirmPassword = document.getElementById("toggle-password-confirm");
+  const confirmPasswordInput = document.getElementById("passwd-confirm-register");
+  visiblePassword(toggleConfirmPassword, confirmPasswordInput);
+
   bascule();
 
   // --- Initialisation de l'état avec transition d'entrée ---
@@ -223,12 +256,12 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (loginConnexion && registerConnexion) {
     // Cache le panneau de connexion
     loginConnexion.classList.add("panel-hidden-left");
-    
+
     registerConnexion.classList.remove("panel-hidden-right");
-    
+
     setTimeout(() => {
       registerConnexion.classList.add("panel-active");
-      
+
       // Définit la hauteur initiale après que le contenu soit rendu
       requestAnimationFrame(() => {
         if (loginContainer) {

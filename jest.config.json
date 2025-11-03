@@ -1,0 +1,20 @@
+{
+  "type": "module",
+  "testEnvironment": "node",
+  "testMatch": [
+    "**/__tests__/**/*.test.js",
+    "**/?(*.)+(spec|test).js"
+  ],
+  "collectCoverageFrom": [
+    "**/*.js",
+    "!node_modules/**",
+    "!coverage/**",
+    "!jest.config.js",
+    "!prisma/**",
+    "!public/**",
+    "!__tests__/**"
+  ],
+  "coverageDirectory": "coverage",
+  "verbose": true,
+  "transform": {}
+}

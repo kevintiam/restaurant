@@ -1,5 +1,6 @@
 import { Router } from "express";
 import passport from "passport";
+import rateLimit from "express-rate-limit";
 import {
   getAllProducts,
   addToPanier,
@@ -24,10 +25,17 @@ import {
   validerLogin,
 } from "./middlewares/validation.js";
 import { userAuth, userAuthRedirect} from "./middlewares/auth.js";
+import { authLimiter, apiLimiter, strictLimiter } from "./middlewares/rateLimiter.js";
 import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 const router = Router();
+
+// Configuration des rate limiters
+const loginLimiter = rateLimit(authLimiter);      // 5 tentatives / 15 min
+const registerLimiter = rateLimit(authLimiter);   // 5 tentatives / 15 min
+const panierLimiter = rateLimit(apiLimiter);      // 100 requêtes / 15 min
+const commandeLimiter = rateLimit(strictLimiter); // 10 requêtes / 10 min
 
 // Définition des routes
 // route pour recuperer tous les produits
@@ -126,12 +134,13 @@ router.get("/login", async (req, res, next) => {
 // route pour ajouter un article au panier
 router.post(
   "/panier/ajouter",
+  panierLimiter,
   userAuth,
   validerArticle,
   async (req, res, next) => {
     try {
       const { id_produit, quantite } = req.body;
-      const produit = await addToPanier(id_produit, quantite);
+      const produit = await addToPanier(req, id_produit, quantite);
       res.status(200).json({
         message: "Produit ajouté avec succès.",
         data: produit,
@@ -144,17 +153,18 @@ router.post(
 );
 router.put(
   "/panier/update/:id",
+  panierLimiter,
   userAuth,
   validerUpdate,
   async (req, res, next) => {
     try {
       const id = req.params.id;
       const { quantite } = req.body;
-      const resultat = await updatePanierQuantity(id, quantite);
+      const resultat = await updatePanierQuantity(req, id, quantite);
 
       res.status(200).json({
-        message: `Article ${resultat.action} avec succès.`,
-        data: resultat.item,
+        message: `Article mis à jour avec succès.`,
+        data: resultat,
       });
     } catch (error) {
       console.error(
@@ -168,12 +178,13 @@ router.put(
 // Route pour supprimer un article ou vider le panier
 router.delete(
   "/panier/supprimer/:id",
+  panierLimiter,
   userAuth,
   validerID,
   async (req, res, next) => {
     try {
       const id = parseInt(req.params.id);
-      const articleSupprime = await removeToPanier(id);
+      const articleSupprime = await removeToPanier(req, id);
       if (articleSupprime) {
         res.status(200).json({
           message: `Article '${articleSupprime.nom}' supprimé avec succès`,
@@ -190,9 +201,9 @@ router.delete(
   }
 );
 // route pour recuperer le nombre total d'element
-router.get("/panier/total-items", async (req, res, next) => {
+router.get("/panier/total-items", panierLimiter, userAuth, async (req, res, next) => {
   try {
-    const totalItems = await getTotalItems();
+    const totalItems = getTotalItems(req);
     res.status(200).json({ totalItems: totalItems });
   } catch (error) {
     console.error("Erreur calcul total items:", error);
@@ -200,9 +211,9 @@ router.get("/panier/total-items", async (req, res, next) => {
   }
 });
 // route pour vider le panier
-router.delete("/panier/vider", userAuth, async (req, res, next) => {
+router.delete("/panier/vider", panierLimiter, userAuth, async (req, res, next) => {
   try {
-    const message = await viderPanier();
+    const message = await viderPanier(req);
     res.status(200).json({
       message: message,
     });
@@ -214,7 +225,7 @@ router.delete("/panier/vider", userAuth, async (req, res, next) => {
 // router pour recuperer tous les articles du panier
 router.get("/panier/all", userAuth, async (req, res, next) => {
   try {
-    const panier = await getContenuPanier();
+    const panier = await getContenuPanier(req);
     res.status(200).json(panier);
   } catch (error) {
     console.error("Erreur calcul total items:", error);
@@ -224,6 +235,7 @@ router.get("/panier/all", userAuth, async (req, res, next) => {
 // Route pour soumettre la commande
 router.post(
   "/commande/soumettre",
+  commandeLimiter,
   userAuth,
   validerInfosClient,
   async (req, res, next) => {
@@ -236,7 +248,7 @@ router.post(
         });
       }
 
-      const panier = await getContenuPanier();
+      const panier = await getContenuPanier(req);
       if (panier.length === 0) {
         return res.status(400).json({
           message: "Le panier est vide. Impossible de soumettre la commande.",
@@ -252,6 +264,7 @@ router.post(
       );
 
       const commandeDB = await passerCommande(
+        req,
         adresse_livraison,
         nom_complet,
         telephone,
@@ -266,7 +279,7 @@ router.post(
           nomClient: nom_complet,
           telephone: telephone,
           adresse: adresse_livraison,
-          items: await getContenuPanier(),
+          items: panier,
           sousTotal: itemsPourRecu.sousTotal,
           taxes: itemsPourRecu.taxe,
           transport: itemsPourRecu.transport,
@@ -321,7 +334,7 @@ router.put("/commandes/statut/:id_commande", userAuth, async (req, res, next) =>
   }
 });
 // route pour ajouter un nouvel utilisateur
-router.post("/user/add", validerInfosUtilisateur, async (req, res, next) => {
+router.post("/user/add", registerLimiter, validerInfosUtilisateur, async (req, res, next) => {
   try {
     const { nom, prenom, mot_de_passe, courriel, id_type_utilisateur } =
       req.body;
@@ -345,7 +358,7 @@ router.post("/user/add", validerInfosUtilisateur, async (req, res, next) => {
   }
 });
 //route pour se connecter
-router.post("/user/login", validerLogin, (req, res, next) => {
+router.post("/user/login", loginLimiter, validerLogin, (req, res, next) => {
   passport.authenticate("local", (err, user, info) => {
     if (err) {
       next(err);
@@ -391,23 +404,6 @@ router.post("/user/logout", userAuth, (req, res, next) => {
       redirectUrl: "/login",
     });
   });
-});
-
-// Route pour vérifier la session
-router.get("/user/session", (req, res, next) => {
-  try {
-    if (req.isAuthenticated()) {
-      const { mot_de_passe, ...safeUser } = req.user;
-      res.json({
-        isAuthenticated: true,
-        user: safeUser,
-      });
-    } else {
-      res.json({ isAuthenticated: false });
-    }
-  } catch (error) {
-    next(error);
-  }
 });
 
 export default router;

@@ -246,17 +246,6 @@ const logout = async () => {
   }
 };
 
-//fonction pour verifier si l'utilisateur est connecté
-const checkSession = async () => {
-  try {
-    const response = await fetch("/user/session");
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error("Erreur lors de la vérification de session:", error);
-    return { isAuthenticated: false };
-  }
-};
 export {
   addPanier,
   removeToPanier,

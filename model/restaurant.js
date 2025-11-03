@@ -3,21 +3,26 @@ import bcrypt from 'bcrypt';
 import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
-const panierTemporaire = [];
-
 // --- FONCTIONS PRODUIT / MENU ---
 const getAllProducts = async () => {
   return await prisma.produit.findMany();
 };
 
 // Fonction pour récupérer le contenu du panier
-const getContenuPanier = async () => {
-  const items = panierTemporaire;
-  return items;
+const getContenuPanier = async (req) => {
+  if (!req.session.panier) {
+    req.session.panier = [];
+  }
+  return req.session.panier;
 };
 
 // fonction pour ajouter les produits au panier
-const addToPanier = async (produitID, quantiteProduit) => {
+const addToPanier = async (req, produitID, quantiteProduit) => {
+  // Initialiser le panier dans la session si nécessaire
+  if (!req.session.panier) {
+    req.session.panier = [];
+  }
+  
   const idProduit = parseInt(produitID);
   const quantite = parseInt(quantiteProduit);
 
@@ -33,7 +38,8 @@ const addToPanier = async (produitID, quantiteProduit) => {
     throw new Error("Produit non trouvé");
   }
 
-  const item = panierTemporaire.find((p) => p.id_produit === idProduit);
+  // Utiliser req.session.panier au lieu de panierTemporaire
+  const item = req.session.panier.find((p) => p.id_produit === idProduit);
 
   if (item) {
     item.quantite += quantite;
@@ -47,50 +53,68 @@ const addToPanier = async (produitID, quantiteProduit) => {
       image: produit.chemin_image,
       description: produit.description,
     };
-    panierTemporaire.push(nouvelArticle);
-    console.log(panierTemporaire);
+    req.session.panier.push(nouvelArticle);
     return nouvelArticle;
   }
 };
 
 // fonction pour retirer un produit du panier
-const removeToPanier = async (produitID) => {
+const removeToPanier = async (req, produitID) => {
+  if (!req.session.panier) {
+    req.session.panier = [];
+  }
+  
   const id = parseInt(produitID);
 
   if (!id) {
     throw new Error("ID produit invalide.", { cause: 400 });
   }
 
-  const itemIdex = panierTemporaire.findIndex((p) => p.id_produit === id);
-  if (itemIdex === -1) {
+  const itemIndex = req.session.panier.findIndex((p) => p.id_produit === id);
+  if (itemIndex === -1) {
     throw new Error("Article introuvable ou inexistant dans le panier");
   }
-  const articleDeleted = panierTemporaire.splice(itemIdex, 1);
+  const articleDeleted = req.session.panier.splice(itemIndex, 1);
   return articleDeleted[0];
 };
 
 // fonction pour vider le panier
-const viderPanier = async () => {
-  if (panierTemporaire.length === 0) {
+const viderPanier = async (req) => {
+  if (!req.session.panier) {
+    req.session.panier = [];
+  }
+  
+  if (req.session.panier.length === 0) {
     return "Le panier est déjà vide.";
   }
-  panierTemporaire.length = 0;
+  req.session.panier.length = 0;
   return "Panier vidé avec succès.";
 };
 
 // fonction pour passer la commande (creer la commande)
 const passerCommande = async (
+  req,
   adresse_livraison,
   nom_complet,
   telephone,
   courriel
 ) => {
+  // Vérifier que l'utilisateur est authentifié
+  if (!req.user || !req.user.id_utilisateur) {
+    throw new Error("Utilisateur non authentifié.");
+  }
+  
+  if (!req.session.panier) {
+    req.session.panier = [];
+  }
+  
   if (!adresse_livraison || !nom_complet || !telephone) {
     throw new Error(
       "Les informations de contact (Nom, Tél, Adresse) sont incomplètes."
     );
   }
-  if (panierTemporaire.length === 0) {
+  
+  if (req.session.panier.length === 0) {
     throw new Error("Impossible de soumettre : le panier est vide.");
   }
 
@@ -110,7 +134,7 @@ const passerCommande = async (
       const formattedId = `CM-${uniqueSuffix}`;
       const commande = await tx.commande.create({
         data: {
-          id_utilisateur: 1,
+          id_utilisateur: req.user.id_utilisateur,
           reference_commande: formattedId,
           id_etat_commande: 1,
           date: new Date(),
@@ -118,7 +142,7 @@ const passerCommande = async (
         },
       });
 
-      const produitsData = panierTemporaire.map((item) => ({
+      const produitsData = req.session.panier.map((item) => ({
         id_commande: commande.id_commande,
         id_produit: item.id_produit,
         quantite: item.quantite,
@@ -131,7 +155,7 @@ const passerCommande = async (
     });
     
     // Vider le panier après la création de la commande
-    panierTemporaire.length = 0;
+    req.session.panier.length = 0;
     
     return nouvelleCommande;
   } catch (error) {
@@ -203,34 +227,40 @@ const updateCommande = async (idCommande, newEtat) => {
   }
 };
 
-const updatePanierQuantity = async (produitID, nouvelleQuantite) => {
+const updatePanierQuantity = async (req, produitID, nouvelleQuantite) => {
+  if (!req.session.panier) {
+    req.session.panier = [];
+  }
+  
   const id = parseInt(produitID);
   const quantite = parseInt(nouvelleQuantite);
 
   if (isNaN(id) || isNaN(quantite) || quantite < 0) {
     throw new Error("ID produit ou quantité invalide.");
   }
-  console.log("Contenu actuel de panierTemporaire:", panierTemporaire);
-  const panier = await getContenuPanier();
 
-  const itemIndex = panier.findIndex((p) => p.id_produit === id);
+  const itemIndex = req.session.panier.findIndex((p) => p.id_produit === id);
 
   if (itemIndex === -1) {
     throw new Error("Article introuvable dans le panier.");
   }
 
   if (quantite === 0) {
-    const [articleSupprime] = panierTemporaire.splice(itemIndex, 1);
+    const [articleSupprime] = req.session.panier.splice(itemIndex, 1);
     return articleSupprime;
   }
 
-  panierTemporaire[itemIndex].quantite = quantite;
+  req.session.panier[itemIndex].quantite = quantite;
 
-  return panierTemporaire[itemIndex];
+  return req.session.panier[itemIndex];
 };
 
-const getTotalItems = () => {
-  const totalItems = panierTemporaire.reduce((sum, item) => {
+const getTotalItems = (req) => {
+  if (!req.session.panier) {
+    req.session.panier = [];
+  }
+  
+  const totalItems = req.session.panier.reduce((sum, item) => {
     return sum + item.quantite;
   }, 0);
 
@@ -283,30 +313,6 @@ const addUser = async (nom, prenom, mot_de_passe, id_type_utilisateur, courriel)
   }
 };
 
-const validationPasswd = (password) => {
-  if (password.length < 8 || password.length > 128) {
-    return "Le mot de passe doit contenir entre 8 et 128 caractères.";
-  }
-
-  if (!/[a-z]/.test(password)) {
-    return "Le mot de passe doit contenir au moins une lettre minuscule.";
-  }
-
-  if (!/[A-Z]/.test(password)) {
-    return "Le mot de passe doit contenir au moins une lettre majuscule.";
-  }
-
-  if (!/\d/.test(password)) {
-    return "Le mot de passe doit contenir au moins un chiffre.";
-  }
-
-  if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~`]/.test(password)) {
-    return "Le mot de passe doit contenir au moins un caractère spécial.";
-  }
-
-  return null;
-};
-
 const connexionUser = async (email) => {
   if (!email) {
     return null;
@@ -346,13 +352,11 @@ export {
   allCommande,
   updateCommande,
   getContenuPanier,
-  panierTemporaire,
   updatePanierQuantity,
   getTotalItems,
   calculateOrderTotals,
   getTypeUser,
   addUser,
-  getUserById ,
-  validationPasswd,
+  getUserById,
   connexionUser,
 };

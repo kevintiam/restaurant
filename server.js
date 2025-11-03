@@ -13,6 +13,7 @@ import cspOptions from "./csp-options.js";
 import { engine } from 'express-handlebars';
 import passport from "passport";
 import './auth.js';
+import { notFoundHandler, errorHandler } from "./middlewares/errorHandler.js";
 
 
 // Création du serveur
@@ -60,11 +61,9 @@ app.use(passport.session());
 app.use(express.static("public"));
 app.use(routeExterne);
 
-// Renvoyer une erreur 404 pour les routes non définies
-app.use((request, response) => {
-    // Renvoyer simplement une chaîne de caractère indiquant que la page n'existe pas
-    response.status(404).send(`${request.originalUrl} Route introuvable.`);
-});
+// Middlewares de gestion d'erreurs
+app.use(notFoundHandler);
+app.use(errorHandler);
 
 // Démarrage du serveur
 app.listen(process.env.PORT);

@@ -114,7 +114,11 @@
 .about-section:hover .about-image img {
   transform: scale(1.03);
 }
-
+.title-restaurant{
+  font-weight: bold;
+  color: #d97706;
+  font-size: 1.3rem;
+}
 /* Responsive */
 @media (max-width: 768px) {
   .about-content {

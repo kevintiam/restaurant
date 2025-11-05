@@ -105,15 +105,23 @@ const register = async (e) => {
   showMessage(errorRegister, "Création de compte en cours...", false);
 
   try {
-    const user = await creerACount(name, prenom, password, categorie, email);
+    const response = await creerACount(name, prenom, password, categorie, email);
     showMessage(
       errorRegister,
-      "Compte créé avec succès ! Vous pouvez vous connecter.",
+      response.message || "Compte créé avec succès ! Redirection...",
       true
     );
     formRegister.reset();
-    // Bascule vers le panneau de connexion après succès
-    showLoginPanel();
+    
+    // Si une URL de redirection est fournie, rediriger automatiquement
+    if (response.redirectUrl) {
+      setTimeout(() => {
+        window.location.href = response.redirectUrl;
+      }, 1000);
+    } else {
+      // Sinon, bascule vers le panneau de connexion après succès
+      showLoginPanel();
+    }
   } catch (error) {
     showMessage(errorRegister, error.message);
   } finally {

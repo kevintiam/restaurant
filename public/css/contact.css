@@ -1,0 +1,330 @@
+﻿/* ==========================================
+   SECTION CONTACT - LE GOURMET AFRICAIN
+   ========================================== */
+
+/* Section principale */
+.restaurant-contact {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 3rem;
+    padding: 4rem 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    background: linear-gradient(135deg, #fff8e1 0%, #fef3d9 100%);
+}
+
+/* Conteneurs principaux */
+.contact-details, 
+.opening-hours-map {
+    background: white;
+    padding: 2.5rem;
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(139, 69, 19, 0.12);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.contact-details:hover, 
+.opening-hours-map:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 32px rgba(139, 69, 19, 0.18);
+}
+
+/* Titres de section */
+.contact-details h2,
+.opening-hours-map h2 {
+    font-family: "Playfair Display", serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: #654321;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 3px solid #fbbf24;
+    position: relative;
+}
+
+.contact-details h2::after,
+.opening-hours-map h2::after {
+    content: "";
+    position: absolute;
+    bottom: -3px;
+    left: 0;
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(90deg, #8b4513, #fbbf24);
+    border-radius: 2px;
+}
+
+/* Groupes d'informations */
+.contact-info-group {
+    margin-bottom: 2rem;
+    padding: 1.25rem;
+    background: linear-gradient(135deg, #fff8e1 0%, #ffffff 100%);
+    border-radius: 12px;
+    border-left: 4px solid #fbbf24;
+    transition: all 0.3s ease;
+}
+
+.contact-info-group:hover {
+    border-left-color: #8b4513;
+    background: linear-gradient(135deg, #fef3d9 0%, #fff8e1 100%);
+    transform: translateX(5px);
+}
+
+.contact-info-group h3 {
+    color: #8b4513;
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.contact-info-group h3::before {
+    content: "•";
+    color: #fbbf24;
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.contact-info-group p {
+    color: #444;
+    font-size: 1.05rem;
+    line-height: 1.6;
+    margin: 0.5rem 0;
+}
+
+.contact-info-group a {
+    color: #8b4513;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+.contact-info-group a:hover {
+    color: #fbbf24;
+    text-decoration: underline;
+}
+
+/* Note d'information */
+.note {
+    font-size: 0.95rem;
+    color: #666;
+    font-style: italic;
+    margin-top: 0.75rem;
+    padding: 0.75rem;
+    background: rgba(251, 191, 36, 0.1);
+    border-radius: 8px;
+    border-left: 3px solid #fbbf24;
+}
+
+/* Heures d'ouverture */
+.opening-hours {
+    margin-top: 1.5rem;
+}
+
+.opening-hours table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin-top: 1rem;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.opening-hours th {
+    background: linear-gradient(135deg, #8b4513 0%, #654321 100%);
+    color: white;
+    padding: 1rem;
+    text-align: left;
+    font-weight: 600;
+    font-size: 1.05rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.opening-hours td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid #f0f0f0;
+    color: #444;
+    font-size: 1rem;
+    background: white;
+    transition: background 0.3s ease;
+}
+
+.opening-hours tr:hover td {
+    background: #fff8e1;
+}
+
+.opening-hours tr:last-child td {
+    border-bottom: none;
+}
+
+.opening-hours td:first-child {
+    font-weight: 600;
+    color: #654321;
+}
+
+/* Bouton CTA */
+.cta-button {
+    display: inline-block;
+    padding: 1rem 2.5rem;
+    margin-top: 2rem;
+    background: linear-gradient(135deg, #8b4513 0%, #654321 100%);
+    color: white;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1.1rem;
+    border-radius: 50px;
+    transition: all 0.4s ease;
+    box-shadow: 0 4px 15px rgba(139, 69, 19, 0.3);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    position: relative;
+    overflow: hidden;
+}
+
+.cta-button::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left 0.6s ease;
+}
+
+.cta-button:hover::before {
+    left: 100%;
+}
+
+.cta-button:hover {
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    box-shadow: 0 6px 20px rgba(251, 191, 36, 0.4);
+    transform: translateY(-2px);
+}
+
+.cta-button:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 10px rgba(139, 69, 19, 0.3);
+}
+
+/* Carte Google Maps */
+.map-container {
+    margin-top: 2rem;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    position: relative;
+}
+
+.map-container::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #8b4513, #fbbf24, #8b4513);
+    z-index: 1;
+}
+
+.map-container iframe {
+    border: none;
+    width: 100%;
+    height: 400px;
+    display: block;
+}
+
+/* Animations */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.contact-details,
+.opening-hours-map {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+.opening-hours-map {
+    animation-delay: 0.2s;
+}
+
+/* ==========================================
+   RESPONSIVE DESIGN
+   ========================================== */
+
+@media (max-width: 992px) {
+    .restaurant-contact {
+        grid-template-columns: 1fr;
+        padding: 3rem 1.5rem;
+        gap: 2rem;
+    }
+    
+    .contact-details h2,
+    .opening-hours-map h2 {
+        font-size: 1.75rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .restaurant-contact {
+        padding: 2rem 1rem;
+    }
+    
+    .contact-details, 
+    .opening-hours-map {
+        padding: 1.5rem;
+    }
+    
+    .contact-details h2,
+    .opening-hours-map h2 {
+        font-size: 1.5rem;
+    }
+    
+    .contact-info-group h3 {
+        font-size: 1.1rem;
+    }
+    
+    .opening-hours th,
+    .opening-hours td {
+        padding: 0.75rem 0.5rem;
+        font-size: 0.9rem;
+    }
+    
+    .cta-button {
+        width: 100%;
+        text-align: center;
+        padding: 1rem;
+        font-size: 1rem;
+    }
+    
+    .map-container iframe {
+        height: 300px;
+    }
+}
+
+@media (max-width: 480px) {
+    .contact-details h2,
+    .opening-hours-map h2 {
+        font-size: 1.3rem;
+    }
+    
+    .opening-hours table {
+        font-size: 0.85rem;
+    }
+    
+    .contact-info-group {
+        padding: 1rem;
+    }
+}

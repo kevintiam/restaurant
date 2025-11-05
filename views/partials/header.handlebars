@@ -14,27 +14,29 @@
       <nav class="main-nav">
         <ul>
           <li><a href="/" class="active">Accueil</a></li>
-          <li><a href="/#menu">Menu</a></li>
-          <li><a href="/#about">À propos</a></li>
-          <li><a href="/#contact">Contact</a></li>
+          <li><a href="#menu">Menu</a></li>
+          <li><a href="#about">À propos</a></li>
+          <li><a href="#contact">Contact</a></li>
+          <li>
+            <a href="/panier" class="cart-icon" id="cartIcon">
+              <i class="fas fa-shopping-cart"></i>
+              <span class="cart-count" id="cartCount">0</span>
+            </a>
+          </li>
+          <li class="user-info">
+            {{#if user}}
+              <span>Bonjour, {{user.prenom}}</span>
+              {{#if isAdmin}}
+                <a href="/admin" class="btn-admin">Administration</a>
+              {{/if}}
+              <button id="logout-btn" class="btn-logout">Déconnexion</button>
+            {{else}}
+              <a href="/login" class="btn-login">Connexion/Inscription</a>
+            {{/if}}
+          </li>
         </ul>
       </nav>
-      <div class="nav-buttons">
-        {{#if user}}
-          <span>Bonjour, {{user.prenom}}</span>
-          {{#if isAdmin}}
-            <a href="/admin" class="btn-admin">Administration</a>
-          {{/if}}
-          <button id="logout-btn" class="btn-logout">Déconnexion</button>
-        {{else}}
-          <a href="/login" class="btn-login">Connexion/Inscription</a>
-        {{/if}}
-      </div>
 
-      <a href="/panier" class="cart-icon" id="cartIcon">
-        <i class="fas fa-shopping-cart"></i>
-        <span class="cart-count" id="cartCount">0</span>
-      </a>
     </div>
   </div>
 </header>

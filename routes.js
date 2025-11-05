@@ -1,6 +1,5 @@
 import { Router } from "express";
 import passport from "passport";
-import rateLimit from "express-rate-limit";
 import {
   getAllProducts,
   addToPanier,
@@ -24,18 +23,11 @@ import {
   validerInfosUtilisateur,
   validerLogin,
 } from "./middlewares/validation.js";
-import { userAuth, userAuthRedirect} from "./middlewares/auth.js";
-import { authLimiter, apiLimiter, strictLimiter } from "./middlewares/rateLimiter.js";
+import { userAuth, userAuthRedirect, userAuthAdmin } from "./middlewares/auth.js";
 import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 const router = Router();
-
-// Configuration des rate limiters
-const loginLimiter = rateLimit(authLimiter);      // 5 tentatives / 15 min
-const registerLimiter = rateLimit(authLimiter);   // 5 tentatives / 15 min
-const panierLimiter = rateLimit(apiLimiter);      // 100 requêtes / 15 min
-const commandeLimiter = rateLimit(strictLimiter); // 10 requêtes / 10 min
 
 // Définition des routes
 // route pour recuperer tous les produits
@@ -60,6 +52,7 @@ router.get("/", async (req, res, next) => {
         "./css/home.css",
         "./css/about.css",
         "./css/panier.css",
+        "./css/contact.css",
       ],
       scripts: [
         "./js/header.js",
@@ -94,7 +87,7 @@ router.get("/panier", userAuth, async (req, res, next) => {
         "./js/panier.js",
         "./js/recus.js",
       ],
-      donneesPanier: await getContenuPanier(),
+      donneesPanier: await getContenuPanier(req),
       user: req.user,
       isAdmin: req.user && req.user.id_type_utilisateur === 2,
     });
@@ -134,7 +127,6 @@ router.get("/login", async (req, res, next) => {
 // route pour ajouter un article au panier
 router.post(
   "/panier/ajouter",
-  panierLimiter,
   userAuth,
   validerArticle,
   async (req, res, next) => {
@@ -153,7 +145,6 @@ router.post(
 );
 router.put(
   "/panier/update/:id",
-  panierLimiter,
   userAuth,
   validerUpdate,
   async (req, res, next) => {
@@ -178,7 +169,6 @@ router.put(
 // Route pour supprimer un article ou vider le panier
 router.delete(
   "/panier/supprimer/:id",
-  panierLimiter,
   userAuth,
   validerID,
   async (req, res, next) => {
@@ -201,7 +191,7 @@ router.delete(
   }
 );
 // route pour recuperer le nombre total d'element
-router.get("/panier/total-items", panierLimiter, userAuth, async (req, res, next) => {
+router.get("/panier/total-items", userAuth, async (req, res, next) => {
   try {
     const totalItems = getTotalItems(req);
     res.status(200).json({ totalItems: totalItems });
@@ -211,7 +201,7 @@ router.get("/panier/total-items", panierLimiter, userAuth, async (req, res, next
   }
 });
 // route pour vider le panier
-router.delete("/panier/vider", panierLimiter, userAuth, async (req, res, next) => {
+router.delete("/panier/vider", userAuth, async (req, res, next) => {
   try {
     const message = await viderPanier(req);
     res.status(200).json({
@@ -235,7 +225,6 @@ router.get("/panier/all", userAuth, async (req, res, next) => {
 // Route pour soumettre la commande
 router.post(
   "/commande/soumettre",
-  commandeLimiter,
   userAuth,
   validerInfosClient,
   async (req, res, next) => {
@@ -313,8 +302,8 @@ router.get("/commandes", async (req, res, next) => {
     next(error);
   }
 });
-// Route pour modifier le statut d'une commande
-router.put("/commandes/statut/:id_commande", userAuth, async (req, res, next) => {
+// Route pour modifier le statut d'une commande (réservée aux administrateurs)
+router.put("/commandes/statut/:id_commande", userAuthAdmin, async (req, res, next) => {
   try {
     const id_commande = parseInt(req.params.id_commande);
     const { id_etat_commande } = req.body;
@@ -334,7 +323,7 @@ router.put("/commandes/statut/:id_commande", userAuth, async (req, res, next) =>
   }
 });
 // route pour ajouter un nouvel utilisateur
-router.post("/user/add", registerLimiter, validerInfosUtilisateur, async (req, res, next) => {
+router.post("/user/add", validerInfosUtilisateur, async (req, res, next) => {
   try {
     const { nom, prenom, mot_de_passe, courriel, id_type_utilisateur } =
       req.body;
@@ -346,7 +335,25 @@ router.post("/user/add", registerLimiter, validerInfosUtilisateur, async (req, r
       courriel
     );
 
-    res.status(201).json(newUser);
+    // Connecter automatiquement l'utilisateur après la création du compte
+    req.login(newUser, (err) => {
+      if (err) {
+        // Si la connexion automatique échoue, retourner quand même le succès
+        return res.status(201).json({ 
+          message: "Compte créé avec succès. Veuillez vous connecter.",
+          user: newUser 
+        });
+      }
+      
+      // Retirer le mot de passe avant d'envoyer la réponse
+      const { mot_de_passe, ...safeUser } = newUser;
+      
+      res.status(201).json({
+        message: "Compte créé avec succès ! Connexion automatique...",
+        user: safeUser,
+        redirectUrl: "/"
+      });
+    });
   } catch (error) {
     if (error.message.includes("Cet email est déjà utilisé.")) {
       return res.status(409).json({ message: error.message });
@@ -358,7 +365,7 @@ router.post("/user/add", registerLimiter, validerInfosUtilisateur, async (req, r
   }
 });
 //route pour se connecter
-router.post("/user/login", loginLimiter, validerLogin, (req, res, next) => {
+router.post("/user/login", validerLogin, (req, res, next) => {
   passport.authenticate("local", (err, user, info) => {
     if (err) {
       next(err);

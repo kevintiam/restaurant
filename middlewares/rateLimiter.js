@@ -1,68 +1,67 @@
 /**
- * Configuration des limiteurs de taux (rate limiters)
- * Protège contre les attaques par force brute et le spam
- * 
- * Note: express-rate-limit doit être installé
- * npm install express-rate-limit
+ * Configuration des rate limiters pour protéger l'API contre les abus
+ * Utilise express-rate-limit pour limiter le nombre de requêtes par IP
  */
 
-/**
- * Limiteur pour les routes d'authentification (login, register)
- * Plus strict car ce sont des cibles d'attaques par force brute
- */
-const authLimiter = {
-  windowMs: 15 * 60 * 1000, // 15 minutes
+// Configuration pour les routes d'authentification (login, register)
+// Protection contre les attaques par force brute
+export const authLimiter = {
+  windowMs: 15 * 60 * 1000, // Fenêtre de 15 minutes
   max: 5, // Maximum 5 tentatives par fenêtre
   message: {
     error: true,
-    message: 'Trop de tentatives de connexion. Veuillez réessayer dans 15 minutes.',
+    message:
+      "Trop de tentatives de connexion depuis cette adresse IP. Veuillez réessayer dans 15 minutes.",
   },
-  standardHeaders: true, // Retourner les infos dans les headers `RateLimit-*`
-  legacyHeaders: false, // Désactiver les headers `X-RateLimit-*`
-  skipSuccessfulRequests: false, // Compter même les requêtes réussies
-  skipFailedRequests: false, // Compter aussi les échecs
+  standardHeaders: true, // Retourne les informations de limite dans les headers `RateLimit-*`
+  legacyHeaders: false, // Désactive les headers `X-RateLimit-*`
+  skipSuccessfulRequests: false, // Compte aussi les requêtes réussies
+  skipFailedRequests: false, // Compte aussi les requêtes échouées
 };
 
-/**
- * Limiteur pour les routes API générales
- * Plus permissif pour les opérations normales
- */
-const apiLimiter = {
-  windowMs: 15 * 60 * 1000, // 15 minutes
+// Configuration pour les routes API générales (panier, produits)
+// Protection contre l'utilisation excessive de l'API
+export const apiLimiter = {
+  windowMs: 15 * 60 * 1000, // Fenêtre de 15 minutes
   max: 100, // Maximum 100 requêtes par fenêtre
   message: {
     error: true,
-    message: 'Trop de requêtes. Veuillez réessayer plus tard.',
+    message:
+      "Trop de requêtes depuis cette adresse IP. Veuillez réessayer dans 15 minutes.",
   },
   standardHeaders: true,
   legacyHeaders: false,
 };
 
-/**
- * Limiteur strict pour les opérations sensibles (création de commande, paiement)
- */
-const strictLimiter = {
-  windowMs: 10 * 60 * 1000, // 10 minutes
-  max: 10, // Maximum 10 requêtes par fenêtre
+// Configuration stricte pour les opérations critiques (soumission de commande)
+// Limite très basse pour prévenir les abus sur les transactions
+export const strictLimiter = {
+  windowMs: 10 * 60 * 1000, // Fenêtre de 10 minutes
+  max: 10, // Maximum 10 commandes par fenêtre
   message: {
     error: true,
-    message: 'Trop de tentatives. Veuillez patienter quelques minutes.',
+    message:
+      "Trop de commandes soumises. Veuillez réessayer dans 10 minutes.",
   },
   standardHeaders: true,
   legacyHeaders: false,
+  skipSuccessfulRequests: false,
+  skipFailedRequests: false,
 };
 
 /**
- * Fonction helper pour créer un rate limiter
- * À utiliser quand express-rate-limit est installé
- * 
- * Exemple d'utilisation dans routes.js:
+ * UTILISATION DANS routes.js :
  * 
  * import rateLimit from 'express-rate-limit';
- * import { authLimiter, apiLimiter } from './middlewares/rateLimiter.js';
+ * import { authLimiter, apiLimiter, strictLimiter } from './middlewares/rateLimiter.js';
  * 
  * const loginLimiter = rateLimit(authLimiter);
- * router.post('/user/login', loginLimiter, ...);
+ * const registerLimiter = rateLimit(authLimiter);
+ * const panierLimiter = rateLimit(apiLimiter);
+ * const commandeLimiter = rateLimit(strictLimiter);
+ * 
+ * router.post('/user/login', loginLimiter, validerLogin, ...);
+ * router.post('/user/add', registerLimiter, validerInfosUtilisateur, ...);
+ * router.post('/panier/ajouter', panierLimiter, userAuth, validerArticle, ...);
+ * router.post('/commande/soumettre', commandeLimiter, userAuth, validerInfosClient, ...);
  */
-
-export { authLimiter, apiLimiter, strictLimiter };

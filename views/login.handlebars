@@ -1,10 +1,5 @@
 <div class="login" id="login-container">
   <div class="login-connexion">
-    <div class="infos-login" id="infos-loging">
-      <h1>Bonjour !</h1>
-      <p>Vous n’avez pas encore de compte ? Rejoignez-nous !</p>
-      <a href="#register" id="register-bascule">Creer un compte</a>
-    </div>
     <div class="connexion active" id="connexion">
       <p class="title">Connexion</p>
       <p class="subtitle">Connectez-vous à votre espace</p>
@@ -51,166 +46,108 @@
         </div>
         <span id="login-error-message"></span>
         <button type="submit">Se connecter</button>
-        {{!-- <div class="sing">
-          <p>Ou connectez-vous avec</p>
-          <div class="reseaux-sociaux">
-            <a
-              href="https://google.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Google"
-            >
-              <i class="fab fa-google"></i>
-            </a>
-            <a
-              href="https://facebook.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Facebook"
-            >
-              <i class="fab fa-facebook"></i>
-            </a>
-          </div>
-        </div> --}}
+        <div class="infos-login" id="infos-loging">
+          <p>Vous n’avez pas encore de compte ?
+            <a href="#register" id="register-bascule">Creer un compte</a></p>
+        </div>
       </form>
     </div>
   </div>
   <div class="login-register">
-
     <div class="register" id="register">
       <p class="title">Inscription</p>
       <p class="subtitle">Créez votre compte dès maintenant</p>
       <form action="" id="register-form">
         <div class="user">
-          <!-- Nom d'utilisateur -->
-          <label for="user-register" class="input-with-icon">
-            <i class="fas fa-user" aria-hidden="true"></i>
-            <input
-              type="text"
-              name="user-name"
-              id="user-register"
-              required
-              placeholder="Nom d'utilisateur"
-            />
-          </label>
-          <!-- Prenom d'utilisateur -->
-          <label for="subname-register" class="input-with-icon">
-            <i class="fas fa-user" aria-hidden="true"></i>
-            <input
-              type="text"
-              name="user-subname"
-              id="subname-register"
-              required
-              placeholder="Prenom d'utilisateur"
-            />
-          </label>
-          <!-- Email -->
-          <label for="email-register" class="input-with-icon">
-            <i class="fas fa-envelope" aria-hidden="true"></i>
-            <input
-              type="email"
-              name="email"
-              id="email-register"
-              required
-              placeholder="Adresse e-mail"
-            />
-          </label>
-          <!-- Mot de passe -->
-          <label for="passwd-register" class="input-with-icon password-field">
-            <i class="fas fa-lock" aria-hidden="true"></i>
-            <input
-              type="password"
-              name="passwd"
-              id="passwd-register"
-              required
-              placeholder="Mot de passe"
-            />
-            <button
-              type="button"
-              class="toggle-password"
-              id="toggle-password-register"
-              aria-label="Afficher le mot de passe"
+          <div class="user-name">
+            <!-- Nom d'utilisateur -->
+            <label for="user-register" class="input-with-icon">
+              <i class="fas fa-user" aria-hidden="true"></i>
+              <input
+                type="text"
+                name="user-name"
+                id="user-register"
+                required
+                placeholder="Nom d'utilisateur"
+              />
+            </label>
+            <!-- Prenom d'utilisateur -->
+            <label for="subname-register" class="input-with-icon">
+              <i class="fas fa-user" aria-hidden="true"></i>
+              <input
+                type="text"
+                name="user-subname"
+                id="subname-register"
+                required
+                placeholder="Prenom d'utilisateur"
+              />
+            </label>
+          </div>
+          <div class="contact-info">
+            <!-- Email -->
+            <label for="email-register" class="input-with-icon">
+              <i class="fas fa-envelope" aria-hidden="true"></i>
+              <input
+                type="email"
+                name="email"
+                id="email-register"
+                required
+                placeholder="Adresse Email"
+              />
+            </label>
+          </div>
+          <div class="password-fields">
+            <!-- Mot de passe -->
+            <label for="passwd-register" class="input-with-icon password-field">
+              <i class="fas fa-lock" aria-hidden="true"></i>
+              <input
+                type="password"
+                name="passwd"
+                id="passwd-register"
+                required
+                placeholder="Mot de passe"
+              />
+              <button
+                type="button"
+                class="toggle-password"
+                id="toggle-password-register"
+                aria-label="Afficher le mot de passe"
+              >
+                <i class="fas fa-eye"></i>
+              </button>
+            </label>
+            <!-- Confirmation du mot de passe -->
+            <label
+              for="passwd-confirm-register"
+              class="input-with-icon password-field"
             >
-              <i class="fas fa-eye"></i>
-            </button>
-          </label>
-          <!-- Confirmation du mot de passe -->
-          <label
-            for="passwd-confirm-register"
-            class="input-with-icon password-field"
-          >
-            <i class="fas fa-lock" aria-hidden="true"></i>
-            <input
-              type="password"
-              name="passwd-confirm"
-              id="passwd-confirm-register"
-              required
-              placeholder="Confirmer le mot de passe"
-            />
-            <button
-              type="button"
-              class="toggle-password"
-              id="toggle-password-confirm"
-              aria-label="Afficher le mot de passe"
-            >
-              <i class="fas fa-eye"></i>
-            </button>
-          </label>
-          <!-- Categorie -->
-          <select name="choix_fruit" id="fruit-select">
-            <option value="">--Veuillez choisir Votre Categorie--</option>
-            <option value="1" class="select-item">Client</option>
-            <option value="3" class="select-item">Livreur</option>
-          </select>
+              <i class="fas fa-lock" aria-hidden="true"></i>
+              <input
+                type="password"
+                name="passwd-confirm"
+                id="passwd-confirm-register"
+                required
+                placeholder="Confirmer le mot de passe"
+              />
+              <button
+                type="button"
+                class="toggle-password"
+                id="toggle-password-confirm"
+                aria-label="Afficher le mot de passe"
+              >
+                <i class="fas fa-eye"></i>
+              </button>
+            </label>
+          </div>
+
         </div>
         <span id="register-error-message"></span>
         <button type="submit">S’inscrire</button>
-        {{!-- <div class="sing">
-          <p>Ou s’inscrire avec un compte social</p>
-          <div class="reseaux-sociaux">
-            <a
-              href="/auth/google"
-              aria-label="Google"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <i class="fab fa-google"></i>
-            </a>
-            <a
-              href="https://facebook.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Facebook"
-            >
-              <i class="fab fa-facebook"></i>
-            </a>
-            <a
-              href="https://github.com/tiamkevin9"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="GitHub"
-            >
-              <i class="fab fa-github"></i>
-            </a>
-            <a
-              href="https://linkedin.com/in/kevintiam"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="LinkedIn"
-            >
-              <i class="fab fa-linkedin"></i>
-            </a>
-          </div>
-        </div> --}}
+        <div class="infos-register" id="infos-register">
+          <p>Vous avez déjà un compte ?
+            <a href="#connexion" id="login-bascule">Se connecter</a></p>
+        </div>
       </form>
     </div>
-
-    <div class="infos-register" id="infos-register">
-      <h1>Rebonjour !</h1>
-      <p>Vous avez déjà un compte ?<br />Connectez-vous pour retrouver vos
-        favoris.</p>
-      <a href="#connexion" id="login-bascule">Se connecter</a>
-    </div>
-
   </div>
 </div>

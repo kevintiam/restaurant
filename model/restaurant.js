@@ -155,8 +155,6 @@ const passerCommande = async (
     });
     
     // Vider le panier après la création de la commande
-    req.session.panier.length = 0;
-    
     return nouvelleCommande;
   } catch (error) {
     console.error("Erreur Prisma lors de la transaction de commande :", error);

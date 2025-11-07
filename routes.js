@@ -53,12 +53,14 @@ router.get("/", async (req, res, next) => {
         "./css/about.css",
         "./css/panier.css",
         "./css/contact.css",
+        "./css/scroll.css",
       ],
       scripts: [
         "./js/header.js",
         "./js/menu.js",
         "./js/panier.js",
         "./js/recus.js",
+        "./js/scroll.js",
       ],
       products: await getAllProducts(),
       user: req.user,
@@ -392,6 +394,24 @@ router.post("/user/login", validerLogin, (req, res, next) => {
     });
   })(req, res, next);
 });
+// Route pour récupérer les infos de l'utilisateur connecté
+router.get("/user/me", userAuth, (req, res, next) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ message: "Non authentifié" });
+    }
+
+    // Retirer le mot de passe avant d'envoyer la réponse
+    const { mot_de_passe, ...safeUser } = req.user;
+    
+    res.status(200).json({
+      user: safeUser
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
 // Route pour se déconnecter
 router.post("/user/logout", userAuth, (req, res, next) => {
   req.logout((err) => {

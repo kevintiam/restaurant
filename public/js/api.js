@@ -246,6 +246,32 @@ const logout = async () => {
   }
 };
 
+const getUserInfo = async () => {
+  try {
+    const response = await fetch("/user/me", {
+      method: "GET",
+      credentials: "include",
+    });
+    
+    console.log("=== DEBUG: Réponse /user/me ===");
+    console.log("Status:", response.status);
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error("❌ Erreur API:", errorData);
+      throw new Error(
+        errorData.message || `Erreur HTTP: ${response.status}`
+      );
+    }
+    const data = await response.json();
+    console.log("✅ Données reçues:", data);
+    return data;
+  } catch (error) {
+    console.error("❌ Erreur lors de la récupération des informations utilisateur:", error.message);
+    throw error;
+  }
+};
+
 export {
   addPanier,
   removeToPanier,
@@ -258,4 +284,5 @@ export {
   creerACount,
   loginUser,
   logout,
+  getUserInfo,
 };

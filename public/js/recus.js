@@ -1,4 +1,4 @@
-import { validerCommande } from "./api.js";
+import { validerCommande, getUserInfo } from "./api.js";
 import { isEmailValid, isNomValid, isTelephoneValid,isAdresseValid } from "./validation.js";
 import { showMessage,updateCartBadge } from "./menu.js";
 
@@ -13,7 +13,20 @@ const submitForm = async (e) => {
   const nomComplet = document.getElementById("titulaire_carte");
   const telephone = document.getElementById("numero_telephone");
 
-  const courriel = "exemple@gmail.com";
+  // Récupérer l'email de l'utilisateur connecté
+  let courriel = "exemple@gmail.com";
+  try {
+    const userInfo = await getUserInfo();    
+    // L'API retourne { user: { courriel: "...", ... } }
+    if (userInfo && userInfo.user && userInfo.user.courriel) {
+      courriel = userInfo.user.courriel;
+      console.log(" Email utilisateur récupéré:", courriel);
+    } else {
+      console.warn("Structure inattendue:", userInfo);
+    }
+  } catch (error) {
+    console.error("Impossible de récupérer l'email de l'utilisateur:", error.message);
+  }
 
   const submitButton = orderForm.querySelector(".btn-submit");
   if (!submitButton) {
@@ -51,6 +64,9 @@ const submitForm = async (e) => {
     // Afficher le reçu AVANT de masquer le panier
     if (resultat.order) {
       afficherRecu(resultat.order);
+      // Mettre à jour le badge du panier
+      resultat.order.items = [];
+      await updateCartBadge();
     }
 
     // Masquer le panier et afficher le reçu
@@ -172,4 +188,5 @@ const afficherRecu = (order) => {
       </div>
     </div>
   `;
+
 };

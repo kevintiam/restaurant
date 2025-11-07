@@ -18,6 +18,14 @@ html {
   scroll-behavior: smooth;
 }
 
+header{
+  position: sticky;
+  top:0;
+  z-index: 1000;
+  width: 100%;
+
+}
+
 /* Style pour les liens d'ancrage */
 .main-nav a[href^="#"] {
   transition: all 0.3s ease;

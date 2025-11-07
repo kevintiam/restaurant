@@ -72,7 +72,7 @@ const register = async (e) => {
     "passwd-confirm-register"
   ).value;
 
-  const categorie = document.getElementById("fruit-select").value;
+  const categorie = "1";
 
   //Validation de base
   if (!isNomValid(name) || !isNomValid(prenom) || !isEmailValid(email)) {

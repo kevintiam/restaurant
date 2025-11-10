@@ -1,0 +1,54 @@
+<div class="admin">
+<div class="admin-header">
+    <h1>Admin Dashboard</h1>
+</div>
+<div class="admin-contain">
+    <h1>Liste des commandes</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Référence</th>
+                <th>Date</th>
+                <th>Client</th>
+                <th>Informations de livraison</th>
+                <th>Détails de la commande</th>
+                <th>Total</th>
+                <th>Statut</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each commandes}}
+            <tr>
+                <td>{{this.reference_commande}}</td>
+                <td>{{this.dateFormatee}}</td>
+                <td>
+                    {{this.utilisateur.prenom}} {{this.utilisateur.nom}}<br>
+                    <small>{{this.utilisateur.courriel}}</small>
+                </td>
+                <td>{{this.adresse_livraison}}</td>
+                <td>
+                    <ul>
+                        {{#each this.CommandeProduit}}
+                        <li>{{this.quantite}} x {{this.produit.nom}} - {{this.produit.prix}}$</li>
+                        {{/each}}
+                    </ul>
+                </td>
+                <td><strong>{{this.total}}$</strong></td>
+                <td>{{this.etatCommande.nom}}</td>
+                <td>
+                    <select class="status-select" data-commande-id="{{this.id_commande}}">
+                        <option value="{{this.id_etat_commande}}" selected>-- Changer statut --</option>
+                        {{!-- Options à ajouter dynamiquement ou statiquement selon vos états --}}
+                    </select>
+                </td>
+            </tr>
+            {{else}}
+            <tr>
+                <td colspan="8" style="text-align: center;">Aucune commande disponible</td>
+            </tr>
+            {{/each}}
+        </tbody>
+    </table>
+</div>
+</div>

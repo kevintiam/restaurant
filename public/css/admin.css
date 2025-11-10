@@ -1,0 +1,295 @@
+/* ================================
+   ADMIN DASHBOARD - STYLES
+   ================================ */
+
+/* Container principal */
+.admin {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #f5f5f5;
+  min-height: 100vh;
+}
+
+/* Header du dashboard */
+.admin-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 30px;
+  border-radius: 10px;
+  margin-bottom: 30px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.admin-header h1 {
+  margin: 0;
+  font-size: 2.5rem;
+  font-weight: 700;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Container du contenu */
+.admin-contain {
+  background: white;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.admin-contain h1 {
+  color: #333;
+  font-size: 1.8rem;
+  margin-bottom: 25px;
+  padding-bottom: 15px;
+  border-bottom: 3px solid #667eea;
+}
+
+/* Tableau des commandes */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  background: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+/* En-tête du tableau */
+thead {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+thead th {
+  padding: 15px 12px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+/* Corps du tableau */
+tbody tr {
+  border-bottom: 1px solid #e0e0e0;
+  transition: all 0.3s ease;
+}
+
+tbody tr:hover {
+  background-color: #f8f9ff;
+  transform: scale(1.01);
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
+}
+
+tbody tr:last-child {
+  border-bottom: none;
+}
+
+tbody td {
+  padding: 15px 12px;
+  vertical-align: top;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+/* Référence de commande */
+tbody td:first-child {
+  font-weight: 700;
+  color: #667eea;
+  font-size: 1rem;
+}
+
+/* Date */
+tbody td:nth-child(2) {
+  color: #888;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+/* Informations client */
+tbody td:nth-child(3) {
+  line-height: 1.6;
+}
+
+tbody td:nth-child(3) small {
+  color: #888;
+  font-size: 0.8rem;
+  display: block;
+  margin-top: 3px;
+}
+
+/* Adresse de livraison */
+tbody td:nth-child(4) {
+  max-width: 250px;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: #666;
+}
+
+/* Détails de la commande (liste) */
+tbody td:nth-child(5) ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+tbody td:nth-child(5) li {
+  padding: 5px 0;
+  border-bottom: 1px dashed #e0e0e0;
+  font-size: 0.85rem;
+}
+
+tbody td:nth-child(5) li:last-child {
+  border-bottom: none;
+}
+
+/* Total */
+tbody td:nth-child(6) {
+  font-size: 1.1rem;
+  color: #27ae60;
+}
+
+tbody td:nth-child(6) strong {
+  font-weight: 700;
+}
+
+/* Statut */
+tbody td:nth-child(7) {
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  color: #f39c12;
+}
+
+/* Select pour les actions */
+.status-select {
+  padding: 8px 12px;
+  border: 2px solid #667eea;
+  border-radius: 5px;
+  background-color: white;
+  color: #333;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 100%;
+  max-width: 180px;
+}
+
+.status-select:hover {
+  background-color: #667eea;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+}
+
+.status-select:focus {
+  outline: none;
+  border-color: #764ba2;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+}
+
+/* Message quand aucune commande */
+tbody td[colspan] {
+  text-align: center !important;
+  padding: 40px 20px !important;
+  color: #999;
+  font-style: italic;
+  font-size: 1rem;
+}
+
+/* Responsive Design */
+@media screen and (max-width: 1200px) {
+  .admin {
+    padding: 15px;
+  }
+
+  .admin-contain {
+    padding: 20px;
+    overflow-x: auto;
+  }
+
+  table {
+    min-width: 1000px;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .admin-header h1 {
+    font-size: 1.8rem;
+  }
+
+  .admin-contain h1 {
+    font-size: 1.4rem;
+  }
+
+  thead th,
+  tbody td {
+    padding: 10px 8px;
+    font-size: 0.8rem;
+  }
+
+  .status-select {
+    font-size: 0.75rem;
+    padding: 6px 8px;
+  }
+}
+
+/* États de commande - Couleurs personnalisées */
+.status-pending {
+  color: #f39c12 !important;
+}
+
+.status-confirmed {
+  color: #3498db !important;
+}
+
+.status-preparing {
+  color: #9b59b6 !important;
+}
+
+.status-delivering {
+  color: #e67e22 !important;
+}
+
+.status-delivered {
+  color: #27ae60 !important;
+}
+
+.status-cancelled {
+  color: #e74c3c !important;
+}
+
+/* Animation de chargement */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.admin-contain {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+/* Scrollbar personnalisée pour le tableau */
+.admin-contain::-webkit-scrollbar {
+  height: 8px;
+}
+
+.admin-contain::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.admin-contain::-webkit-scrollbar-thumb {
+  background: #667eea;
+  border-radius: 10px;
+}
+
+.admin-contain::-webkit-scrollbar-thumb:hover {
+  background: #764ba2;
+}

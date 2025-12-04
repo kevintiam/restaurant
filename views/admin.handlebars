@@ -1,54 +1,183 @@
-<div class="admin">
-<div class="admin-header">
-    <h1>Admin Dashboard</h1>
-</div>
-<div class="admin-contain">
-    <h1>Liste des commandes</h1>
-    <table>
-        <thead>
-            <tr>
-                <th>Référence</th>
-                <th>Date</th>
-                <th>Client</th>
-                <th>Informations de livraison</th>
-                <th>Détails de la commande</th>
-                <th>Total</th>
-                <th>Statut</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {{#each commandes}}
-            <tr>
-                <td>{{this.reference_commande}}</td>
-                <td>{{this.dateFormatee}}</td>
-                <td>
-                    {{this.utilisateur.prenom}} {{this.utilisateur.nom}}<br>
-                    <small>{{this.utilisateur.courriel}}</small>
-                </td>
-                <td>{{this.adresse_livraison}}</td>
-                <td>
-                    <ul>
-                        {{#each this.CommandeProduit}}
-                        <li>{{this.quantite}} x {{this.produit.nom}} - {{this.produit.prix}}$</li>
-                        {{/each}}
-                    </ul>
-                </td>
-                <td><strong>{{this.total}}$</strong></td>
-                <td>{{this.etatCommande.nom}}</td>
-                <td>
-                    <select class="status-select" data-commande-id="{{this.id_commande}}">
-                        <option value="{{this.id_etat_commande}}" selected>-- Changer statut --</option>
-                        {{!-- Options à ajouter dynamiquement ou statiquement selon vos états --}}
-                    </select>
-                </td>
-            </tr>
+<div class="admin-dashboard">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <h2>AdminPanel</h2>
+    </div>
+    <div class="sidebar-menu">
+      <ul>
+        <li class="active">
+          <a href="#">
+            <i class="fas fa-tachometer-alt"></i>
+            <span>Tableau de bord</span>
+          </a>
+        </li>
+        <li>
+          <a href="#">
+            <i class="fas fa-shopping-cart"></i>
+            <span>Commandes</span>
+          </a>
+        </li>
+        <li>
+          <a href="#">
+            <i class="fas fa-box"></i>
+            <span>Produits</span>
+          </a>
+        </li>
+        <li>
+          <a href="#">
+            <i class="fas fa-users"></i>
+            <span>Clients</span>
+          </a>
+        </li>
+        <li>
+          <a href="#">
+            <i class="fas fa-chart-bar"></i>
+            <span>Analytiques</span>
+          </a>
+        </li>
+        <li>
+          <a href="#">
+            <i class="fas fa-cog"></i>
+            <span>Paramètres</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+  <!-- Main Content -->
+  <div class="main-content">
+    <!-- Header -->
+    <div class="header">
+      <div class="header-left">
+        <h1>Gestion des Commandes</h1>
+      </div>
+      <div class="header-right">
+        <div class="user-profile">
+          <div class="user-avatar" id="user-avatar">
+            {{#if user}}
+              {{initialesUser}}
             {{else}}
+              AD
+            {{/if}}
+          </div>
+          <div class="user-info">
+            {{#if user}}
+              <div class="user-name">{{user.prenom}} {{user.nom}}</div>
+            {{else}}
+              <div class="user-name">Admin User</div>
+            {{/if}}
+            <div class="user-role">Administrateur</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dashboard Content -->
+    <div class="dashboard-content">
+      <!-- Stats Cards -->
+      <div class="stats-cards">
+        <div class="stat-card">
+          <div class="stat-icon primary">
+            <i class="fas fa-shopping-cart"></i>
+          </div>
+          <div class="stat-info">
+            <h3>{{commandes.length}}</h3>
+            <p>Commandes totales</p>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon success">
+            <i class="fas fa-check-circle"></i>
+          </div>
+          <div class="stat-info">
+            <h3 id="livrees-count">0</h3>
+            <p>Commandes livrées</p>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon warning">
+            <i class="fas fa-clock"></i>
+          </div>
+          <div class="stat-info">
+            <h3 id="attente-count">0</h3>
+            <p>En attente</p>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon info">
+            <i class="fas fa-dollar-sign"></i>
+          </div>
+          <div class="stat-info">
+            <h3 id="revenu-total">0$</h3>
+            <p>Revenu total</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Table Container -->
+      <div class="table-container">
+        <div class="table-header">
+          <h2>Liste des commandes</h2>
+          <div class="table-actions">
+            <button class="btn btn-outline">
+              <i class="fas fa-filter"></i>
+              Filtrer
+            </button>
+          </div>
+        </div>
+
+        <table>
+          <thead>
             <tr>
-                <td colspan="8" style="text-align: center;">Aucune commande disponible</td>
+              <th>Référence</th>
+              <th>Date</th>
+              <th>Client</th>
+              <th>Adresse de livraison</th>
+              <th>Détails de la commande</th>
+              <th>Montant</th>
+              <th>État</th>
+              <th>Actions</th>
             </tr>
+          </thead>
+          <tbody>
+            {{#each commandes}}
+              <tr>
+                <td class="reference-cell">{{this.reference_commande}}</td>
+                <td class="date-cell">{{this.dateFormatee}}</td>
+                <td class="customer-info">
+                  <div class="customer-name">{{this.utilisateur.prenom}} {{this.utilisateur.nom}}</div>
+                  <div class="customer-email">{{this.utilisateur.courriel}}</div>
+                </td>
+                <td class="address-cell">{{this.adresseInfo.adresse}}</td>
+                <td>
+                  <ul class="product-list">
+                    {{#each this.CommandeProduit}}
+                      <li>{{this.quantite}} x {{this.produit.nom}} - {{this.produit.prix}}$</li>
+                    {{/each}}
+                  </ul>
+                </td>
+                <td class="total-amount">{{this.total}}$</td>
+                <td>
+                  <span class="status-badge status-{{this.etatCommande.nom}}">{{this.etatCommande.nom}}</span>
+                </td>
+                <td>
+                  <select class="status-select" data-commande-id="{{this.id_commande}}">
+                    <option value="{{this.id_etat_commande}}" selected>-- Changer statut --</option>
+                    {{#each ../etats}}
+                      <option value="{{this.id_etat_commande}}">{{this.nom}}</option>
+                    {{/each}}
+                  </select>
+                </td>
+              </tr>
+            {{else}}
+              <tr>
+                <td colspan="8" class="no-data">Aucune commande disponible</td>
+              </tr>
             {{/each}}
-        </tbody>
-    </table>
-</div>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
 </div>

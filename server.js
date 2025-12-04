@@ -22,7 +22,11 @@ const app = express();
 // Configuration d'engin de rendu
 app.engine('handlebars', engine({
   helpers: {
-    eq: (a, b) => a === b
+    eq: (a, b) => a === b,
+    substring: (str, start, end) => {
+      if (!str) return '';
+      return str.substring(start, end).toUpperCase();
+    }
   }
 }));     // definir le moteur de template Handlebars avec helpers
 app.set('view engine', 'handlebars');   // definition de l'extention

@@ -1,4 +1,4 @@
-import bcrypt from 'bcrypt';
+import bcrypt from "bcrypt";
 
 import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
@@ -22,7 +22,7 @@ const addToPanier = async (req, produitID, quantiteProduit) => {
   if (!req.session.panier) {
     req.session.panier = [];
   }
-  
+
   const idProduit = parseInt(produitID);
   const quantite = parseInt(quantiteProduit);
 
@@ -63,7 +63,7 @@ const removeToPanier = async (req, produitID) => {
   if (!req.session.panier) {
     req.session.panier = [];
   }
-  
+
   const id = parseInt(produitID);
 
   if (!id) {
@@ -83,7 +83,7 @@ const viderPanier = async (req) => {
   if (!req.session.panier) {
     req.session.panier = [];
   }
-  
+
   if (req.session.panier.length === 0) {
     return "Le panier est déjà vide.";
   }
@@ -103,17 +103,17 @@ const passerCommande = async (
   if (!req.user || !req.user.id_utilisateur) {
     throw new Error("Utilisateur non authentifié.");
   }
-  
+
   if (!req.session.panier) {
     req.session.panier = [];
   }
-  
+
   if (!adresse_livraison || !nom_complet || !telephone) {
     throw new Error(
       "Les informations de contact (Nom, Tél, Adresse) sont incomplètes."
     );
   }
-  
+
   if (req.session.panier.length === 0) {
     throw new Error("Impossible de soumettre : le panier est vide.");
   }
@@ -138,7 +138,7 @@ const passerCommande = async (
           reference_commande: formattedId,
           id_etat_commande: 1,
           date: new Date(),
-          adresse_livraison: adresseComplete,
+          adresse_livraison: adresse_livraison,
         },
       });
 
@@ -153,7 +153,7 @@ const passerCommande = async (
       });
       return commande;
     });
-    
+
     // Vider le panier après la création de la commande
     return nouvelleCommande;
   } catch (error) {
@@ -170,9 +170,9 @@ const allCommande = async () => {
         date: "desc",
       },
       include: {
-        etatCommande: true,
+        etat_commande: true,
         utilisateur: true,
-        CommandeProduit: {
+        produits: {
           include: {
             produit: true,
           },
@@ -181,14 +181,40 @@ const allCommande = async () => {
     });
 
     return commandes.map((commande) => {
-      const total = commande.CommandeProduit.reduce((sum, item) => {
+      const total = commande.produits.reduce((sum, item) => {
         return sum + item.quantite * item.produit.prix;
       }, 0);
+
+      // Parser l'adresse de livraison pour extraire les parties
+      let adresseInfo = {
+        client: '',
+        telephone: '',
+        courriel: '',
+        adresse: ''
+      };
+
+      if (commande.adresse_livraison) {
+        const parts = commande.adresse_livraison.split(' | ');
+        parts.forEach(part => {
+          if (part.startsWith('CLIENT: ')) {
+            adresseInfo.client = part.replace('CLIENT: ', '');
+          } else if (part.startsWith('TÉL: ')) {
+            adresseInfo.telephone = part.replace('TÉL: ', '');
+          } else if (part.startsWith('COURRIEL: ')) {
+            adresseInfo.courriel = part.replace('COURRIEL: ', '');
+          } else if (part.startsWith('ADRESSE: ')) {
+            adresseInfo.adresse = part.replace('ADRESSE: ', '');
+          }
+        });
+      }
 
       return {
         ...commande,
         total: total.toFixed(2),
         dateFormatee: new Date(commande.date).toLocaleString("fr-FR"),
+        etatCommande: commande.etat_commande, 
+        CommandeProduit: commande.produits,
+        adresseInfo: adresseInfo,
       };
     });
   } catch (error) {
@@ -229,7 +255,7 @@ const updatePanierQuantity = async (req, produitID, nouvelleQuantite) => {
   if (!req.session.panier) {
     req.session.panier = [];
   }
-  
+
   const id = parseInt(produitID);
   const quantite = parseInt(nouvelleQuantite);
 
@@ -257,7 +283,7 @@ const getTotalItems = (req) => {
   if (!req.session.panier) {
     req.session.panier = [];
   }
-  
+
   const totalItems = req.session.panier.reduce((sum, item) => {
     return sum + item.quantite;
   }, 0);
@@ -287,7 +313,14 @@ const getTypeUser = async () => {
   return await prisma.typeUtilisateur.findMany();
 };
 
-const addUser = async (nom, prenom, mot_de_passe, id_type_utilisateur, courriel) => {
+// --- FONCTIONS UTILISATEUR ---
+const addUser = async (
+  nom,
+  prenom,
+  mot_de_passe,
+  id_type_utilisateur,
+  courriel
+) => {
   if (!nom || !prenom || !mot_de_passe || !id_type_utilisateur || !courriel) {
     throw new Error("Tous les champs sont obligatoires");
   }
@@ -333,7 +366,7 @@ const getUserById = async (id) => {
   }
   try {
     const user = await prisma.utilisateur.findUnique({
-      where: {  id_utilisateur: parseInt(id) },
+      where: { id_utilisateur: parseInt(id) },
     });
     return user;
   } catch (error) {

@@ -30,24 +30,22 @@ const isTelephoneValid = (telephone) => {
 };
 // validation des adresses
 const isAdresseValid = (adresse) => {
-    if (typeof adresse !== "string") return false;
+  if (typeof adresse !== "string") return false;
 
-    const trimmedAdresse = adresse.trim(); 
+  const trimmedAdresse = adresse.trim();
 
-    // Vérification de la présence de chiffres (pour le numéro civique)
-    const containsNumber = /\d/.test(trimmedAdresse);
-    
-    // Vérification de la présence de lettres (pour le nom de la rue)
-    const containsLetter = /[a-zA-ZÀ-ÿ]/.test(trimmedAdresse); 
+  // Vérification de la présence de chiffres (pour le numéro civique)
+  const containsNumber = /\d/.test(trimmedAdresse);
 
-    return containsNumber && containsLetter;
+  // Vérification de la présence de lettres (pour le nom de la rue)
+  const containsLetter = /[a-zA-ZÀ-ÿ]/.test(trimmedAdresse);
+
+  return containsNumber && containsLetter;
 };
 // validation de l'email (Version Corrigée et Robuste)
 const isEmailValid = (email) => {
   if (typeof email !== "string") return false;
-
   const trimmedEmail = email.trim();
-
   // Vérification basique avant le regex lourd
   if (
     trimmedEmail.length === 0 ||
@@ -56,11 +54,9 @@ const isEmailValid = (email) => {
   ) {
     return false;
   }
-
   // Regex email robuste
   const emailRegex =
     /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
-
   return emailRegex.test(trimmedEmail);
 };
 // fonction pour verifier le numero de la carte
@@ -298,7 +294,7 @@ const masquerNumeroCarte = (numeroCarte) => {
   const derniersChiffres = cleaned.slice(-4);
   return `•••• •••• •••• ${derniersChiffres}`;
 };
- // Vérifie si l'ID d'un produit et sa quantité sont valides.
+// Vérifie si l'ID d'un produit et sa quantité sont valides.
 const isArticleValid = (id_produit, quantite) => {
   // --- 1. Validation de l'ID du Produit ---
   const id = Number(id_produit);
@@ -329,14 +325,11 @@ const isIdValid = (id) => {
 };
 const isValidQuantity = (quantite) => {
   const numId = Number(quantite);
-  return (
-    Number.isInteger(numId) && 
-    numId >= 1 && 
-    numId < 100);
+  return Number.isInteger(numId) && numId >= 1 && numId < 100;
 };
 const isValidPassword = (password) => {
   if (typeof password !== "string") return false;
-  if( password.length < 8 || password.length > 128) {
+  if (password.length < 8 || password.length > 128) {
     return false;
   }
   if (!/[a-z]/.test(password)) {
@@ -353,6 +346,7 @@ const isValidPassword = (password) => {
   }
   return true;
 };
+
 export {
   isNomValid,
   isTelephoneValid,

@@ -23,7 +23,7 @@ import {
   validerInfosUtilisateur,
   validerLogin,
 } from "./middlewares/validation.js";
-import { userAuth, userAuthRedirect, userAuthAdmin } from "./middlewares/auth.js";
+import { userAuth, userAuthAdmin } from "./middlewares/auth.js";
 import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
@@ -291,13 +291,21 @@ router.post(
 router.get("/commandes", async (req, res, next) => {
   try {
     const etatsPossibles = await prisma.etatCommande.findMany();
-    res.render("commandes", {
+    
+    // Calculer les initiales de l'utilisateur connecté
+    let initialesUser = 'AD';
+    if (req.user && req.user.prenom && req.user.nom) {
+      initialesUser = (req.user.prenom.charAt(0) + req.user.nom.charAt(0)).toUpperCase();
+    }
+    
+    res.render("admin", {
       title: "Gestion des Commandes",
-      styles: ["./css/header.css"],
-      scripts: ["./js/header.js"],
+      styles: ["./css/header.css", "./css/admin.css"],
+      scripts: ["./js/header.js", "./js/admin.js"],
       commandes: await allCommande(),
       etats: etatsPossibles,
       user: req.user,
+      initialesUser: initialesUser,
       isAdmin: req.user && req.user.id_type_utilisateur === 2,
     });
   } catch (error) {
@@ -366,11 +374,12 @@ router.post("/user/add", validerInfosUtilisateur, async (req, res, next) => {
     next(error);
   }
 });
-//route pour se connecter
+
+//route pour se connecter a son compte
 router.post("/user/login", validerLogin, (req, res, next) => {
   passport.authenticate("local", (err, user, info) => {
     if (err) {
-      next(err);
+      return next(err);
     }
 
     if (!user) {
@@ -381,29 +390,31 @@ router.post("/user/login", validerLogin, (req, res, next) => {
     // Connexion de l'utilisateur via Passport
     req.logIn(user, (err) => {
       if (err) {
-        next(err);
+        return next(err);
       }
       // Retourner l'utilisateur sans le mot de passe
       const { mot_de_passe, ...safeUser } = user;
 
+      // Rediriger vers /admin si l'utilisateur est un administrateur
+      const redirectUrl = user.id_type_utilisateur === 2 ? "/commandes" : "/";
+
       res.json({
         message: "Connexion réussie",
         user: safeUser,
-        redirectUrl: "/",
+        redirectUrl: redirectUrl,
       });
     });
   })(req, res, next);
 });
+
 // Route pour récupérer les infos de l'utilisateur connecté
 router.get("/user/me", userAuth, (req, res, next) => {
   try {
     if (!req.user) {
       return res.status(401).json({ message: "Non authentifié" });
     }
-
     // Retirer le mot de passe avant d'envoyer la réponse
     const { mot_de_passe, ...safeUser } = req.user;
-    
     res.status(200).json({
       user: safeUser
     });

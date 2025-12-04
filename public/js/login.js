@@ -51,7 +51,7 @@ const login = async (e) => {
 
     // Redirection après un court délai pour que l'utilisateur voie le message
     setTimeout(() => {
-      window.location.href = response.redirectUrl || "/";
+      window.location.href = response.redirectUrl;
     }, 1000);
   } catch (error) {
     showMessage(errorLogin, error.message);

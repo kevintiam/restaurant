@@ -95,6 +95,7 @@ const getPanierItems = async () => {
     throw error;
   }
 };
+
 const viderPanier = async () => {
   try {
     const response = await fetch("/panier/vider", {
